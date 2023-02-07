@@ -44,10 +44,10 @@ export const findAndSortByETHGobbled = (gooeys: Gooey[]): Gooey[] =>
   gooeys.filter(goo => goo.ethGobbled !== null)
     .sort((a, b) => b.ethGobbled - a.ethGobbled);
 
-export const findAndSortByNumberOfOffspring = (gooeys: Gooey[]): Gooey[] => 
-  mapChildrenToGooey(gooeys)
-    .sort((a, b) => b.children.length - a.children.length)
-    .map(({parent}) => parent);
+export const findAndSortByNumberOfOffspring =
+  (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => 
+    mapChildrenToGooey(gooeys)
+      .sort((a, b) => b.children.length - a.children.length)
     
 export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
   const bodyTypes = splitToBodyTypes(gooeys);
