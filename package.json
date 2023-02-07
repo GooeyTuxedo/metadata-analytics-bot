@@ -7,6 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "update-db": "node dist/database.js",
+    "deploy-cmds": "node dist/deploy-commands.js",
     "watch": "nodemon --watch 'src/**/*.ts' --exec 'npm run start'"
   },
   "dependencies": {
