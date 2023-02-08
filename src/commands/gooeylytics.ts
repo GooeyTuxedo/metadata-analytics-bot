@@ -4,6 +4,8 @@ import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
 import { findAndSortByETHGobbled, findAndSortByMitosisCredits, findAndSortByNumberOfOffspring, findExtinctBodyTypes, findUnburiedDead } from '../transformations';
 import { Gooey } from '../../types/gooey';
 
+import { doUpdate } from '../database';
+
 const mkUnburiedEmbed = (list: number[]) =>
   new EmbedBuilder()
     .setTitle(`${list.length} unburied Gooeys with 0 health`)
@@ -54,6 +56,11 @@ module.exports = {
         .setName('updated-at')
         .setDescription('Print the time of last db update'))
 
+    .addSubcommand(subcommand => 
+      subcommand
+        .setName('update-db')
+        .setDescription('Fetch a new gooey collection snapshot and commit to db'))
+
     .addSubcommand(subcommand =>
       subcommand
         .setName('unburied')
@@ -90,6 +97,11 @@ module.exports = {
     
         return await interaction.reply(`Gooey database last updated at ${snapshotTimestamp.toUTCString()}`);
 
+      } else if (subcommand == 'update-db') {
+          doUpdate();
+
+          return await interaction.reply(`started gooey database update`);
+  
       } else if (subcommand == 'unburied') {
         const unburiedDead = findUnburiedDead(gooeys)
         const unburiedEmbed = mkUnburiedEmbed(unburiedDead)

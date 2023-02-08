@@ -180,10 +180,13 @@ const updateGooeyCollection = (gooeys: Gooey[]) => {
   db.close();
 };
 
-getTokenIndex()
+export function doUpdate() {
+  return getTokenIndex()
   .then(getGooeyCollectionBySupply)
   .then(retryFailuresInList)
   .then(filterFailures)
   .then(updateGooeyCollection)
   .then(() => console.log(`Updated gooey database`))
-  .catch(() => console.log(`update failed!`))
+  .catch(() => console.log(`update failed!`));
+}
+
