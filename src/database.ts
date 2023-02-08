@@ -75,7 +75,7 @@ const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
   } catch (error) {
-    console.error(`Error fetching metadata for token with id ${tokenId}:`);
+    console.error(`Error fetching metadata for token with id ${tokenId}: ${error}`);
     return null;
   }
 }
@@ -98,7 +98,7 @@ const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
 
 
 const updateGooeyCollection = (gooeys: Gooey[]) => {
-  const db = new Database("./tokens.db", (err) => {
+  const db = new Database("./db/tokens.db", (err) => {
     if (err) {
       console.error(err.message);
     }

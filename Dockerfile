@@ -2,8 +2,6 @@ FROM node:18-alpine3.16 as ts-compiler
 WORKDIR /usr/app
 COPY package*.json ./
 COPY tsconfig*.json ./
-RUN apk update \
-  && apk add --no-cache sqlite-dev
 RUN npm install
 COPY . ./
 RUN npm run build
@@ -20,8 +18,8 @@ FROM node:18-alpine3.16
 WORKDIR /usr/app
 COPY --from=ts-remover /usr/app ./
 COPY .env ./
+VOLUME [ "/usr/app/db" ]
 USER root
 RUN apk update \
   && apk add --no-cache sqlite-dev sqlite
-RUN crontab -l | { cat; echo "*/15 * * * * node /usr/app/database.js"; } | crontab -
-CMD node database && node index.js
+CMD node index.js

@@ -47,4 +47,5 @@ new CronJob({
 })
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(token)
+  .catch(err => console.log(`Error logging into discord! ${err}`));

@@ -4,7 +4,7 @@ import { Gooey } from "../types/gooey";
 
 
 export const fetchTokenCollection = (): Promise<Gooey[]> => {
-  const db = new Database("tokens.db");
+  const db = new Database("/db/tokens.db");
 
   return new Promise((resolve, reject) => {
     db.all(
@@ -31,7 +31,7 @@ export const fetchTokenCollection = (): Promise<Gooey[]> => {
 
 
 export const fetchSnapshotTimestamp = (): Promise<number> => {
-  const db = new Database("tokens.db");
+  const db = new Database("/db/tokens.db");
 
   return new Promise((resolve, reject) => {
     db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row) => {
