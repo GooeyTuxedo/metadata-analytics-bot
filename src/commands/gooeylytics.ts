@@ -1,10 +1,15 @@
 import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, APIEmbedField, APIEmbed } from 'discord.js';
 
 import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
-import { findAndSortByETHGobbled, findAndSortByMitosisCredits, findAndSortByNumberOfOffspring, findExtinctBodyTypes, findUnburiedDead } from '../transformations';
 import { Gooey } from '../../types/gooey';
-
-import { doUpdate } from '../database';
+import {
+  findAndSortByETHGobbled,
+  findAndSortByMitosisCredits,
+  findAndSortByNumberOfOffspring,
+  findExtinctBodyTypes,
+  findSingletonBodyTypes,
+  findUnburiedDead
+} from '../transformations';
 
 const mkUnburiedEmbed = (list: number[]) =>
   new EmbedBuilder()
@@ -45,6 +50,11 @@ const mkExtinctionEmbed = (list: string[]) =>
       .setTitle(`Found ${list.length} extinct gooey types`)
       .setDescription(list.join('\n'));
 
+const mkSingletonsEmbed = (list: string[]) =>
+    new EmbedBuilder()
+      .setTitle(`Found ${list.length} singleton gooey bodies`)
+      .setDescription(list.join('\n'));
+
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -83,7 +93,12 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('extinct-types')
-        .setDescription('Print a list of all gooey body types with no living members')),
+        .setDescription('Print a list of all gooey body types with no living members'))
+
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('singletons')
+        .setDescription('Print a list of all gooey body types with only 1 gooey left living')),
     
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -98,10 +113,8 @@ module.exports = {
         return await interaction.reply(`Gooey database last updated at ${snapshotTimestamp.toUTCString()}`);
 
       } else if (subcommand == 'update-db') {
-          doUpdate();
+          return await interaction.reply(`TODO: remove, this does nothing`);
 
-          return await interaction.reply(`started gooey database update`);
-  
       } else if (subcommand == 'unburied') {
         const unburiedDead = findUnburiedDead(gooeys)
         const unburiedEmbed = mkUnburiedEmbed(unburiedDead)
@@ -133,6 +146,11 @@ module.exports = {
 
         return await interaction.reply({ embeds: [extinctionEmbed] });
 
+      } else if (subcommand == 'singletons') {
+        const singletonBodyTypes = findSingletonBodyTypes(gooeys);
+        const singletonsEmbed = mkSingletonsEmbed(singletonBodyTypes);
+
+        return await interaction.reply({ embeds: [singletonsEmbed] });
       } else {
         return await interaction.reply(`Could not find command for subcommand "${subcommand}"`);
       }

@@ -48,7 +48,23 @@ export const findAndSortByNumberOfOffspring =
   (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => 
     mapChildrenToGooey(gooeys)
       .sort((a, b) => b.children.length - a.children.length)
-    
+
+export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
+  const bodyTypes = splitToBodyTypes(gooeys);
+  const children = splitToChildren(gooeys);
+
+  const hasLivingChildren = (tokenID: number): boolean =>
+    (children[tokenID]) ?
+      children[tokenID].reduce((didFindLivingDescendant, child) =>
+        (didFindLivingDescendant || !child.isBuried || hasLivingChildren(child.tokenID))
+      , false) : false;
+
+  return Object.entries(bodyTypes)
+    .map(([body, gooeys]) => ([ body, gooeys.filter(goo => !goo.isBuried) ]))
+    .filter(([_, aliveGooeys]) => aliveGooeys.length == 1)
+    .map(([singletonBodyType]) => singletonBodyType as string);
+}
+
 export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
   const bodyTypes = splitToBodyTypes(gooeys);
   const children = splitToChildren(gooeys);
