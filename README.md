@@ -21,8 +21,10 @@ git clone https://github.com/<repo>.git
 2. Create a .env file and add the following environment variables:
 
 ```makefile
+ALCHEMY_API_KEY=<your alchemy api key>
 DISCORD_TOKEN=<your discord bot token>
-SQLITE_DB_LOCATION=<location to store sqlite database>
+DISCORD_CLIENT=<your discord client ID>
+DISCORD_GUILD=<your discord channel ID>
 ```
 
 3. Build the Docker image

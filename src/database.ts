@@ -62,7 +62,7 @@ const getTokenIndex = async (): Promise<number> => {
   const alchemy = new Alchemy(settings);
 
   const { totalSupply = '2000' } = await alchemy.nft.getContractMetadata('0x0a8d311b99ddaa9ebb45fd606eb0a1533004f26b')
-  
+  if (totalSupply == '2000') console.log('FETCHING SUPPLY FAILED')
   return parseInt(totalSupply);
 }
 
