@@ -15,10 +15,10 @@ This Docker image contains a Discord bot built with Node.js and utilizes SQLite 
 1. Clone the repository to your local machine
 
 ```bash
-git clone https://github.com/<repo>.git
+git clone https://github.com/GooeyTuxedo/metadata-analytics-bot.git
 ```
 
-2. Create a .env file and add the following environment variables:
+2. Create a .env file in the root of the project and add the following environment variables:
 
 ```makefile
 ALCHEMY_API_KEY=<your alchemy api key>
@@ -29,12 +29,14 @@ DISCORD_GUILD=<your discord channel ID>
 
 3. Build the Docker image
 
+```bash
 docker build -t discord-bot .
+```
 
 4. Run the Docker container
 
 ```bash
-docker run -d --env-file .env discord-bot
+docker run -d discord-bot
 ```
 
 ## Environment Variables
