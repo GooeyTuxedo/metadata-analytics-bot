@@ -101,6 +101,7 @@ const updateGooeyCollection = (gooeys: Gooey[]) => {
   const db = new Database("./db/tokens.db", (err) => {
     if (err) {
       console.error(err.message);
+      return;
     }
     console.log("Connected to the gooey database.");
   });
