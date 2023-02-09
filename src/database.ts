@@ -1,7 +1,6 @@
-import axios from 'axios';
-import { Database } from "sqlite3";
+import fetch from 'node-fetch';
+import { Database } from 'sqlite3';
 import { Alchemy, Network } from 'alchemy-sdk';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -71,12 +70,9 @@ const makeIDListBySupply = (totalSupply: number): number[] => Array.from({ lengt
 
 const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
   try {
-    const response = await axios.get(tokenId.toString(), {
-      baseURL: "https://ethgobblers.com/metadata/",
-      proxy: false,
-      httpsAgent: new HttpsProxyAgent('http://host.docker.internal:8080')
-    })
-    const raw = response.data as RawGooey;
+    const response = await fetch(`https://ethgobblers.com/metadata/${tokenId}`);
+    const raw = await response.json() as RawGooey;
+    
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
   } catch (error) {
