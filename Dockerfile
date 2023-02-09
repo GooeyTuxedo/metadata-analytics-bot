@@ -1,4 +1,4 @@
-FROM node:18-alpine3.16 as ts-compiler
+FROM node:18-alpine3.17 as ts-compiler
 WORKDIR /usr/app
 COPY package*.json ./
 COPY tsconfig*.json ./
@@ -8,7 +8,7 @@ RUN npm install
 COPY . ./
 RUN npm run build
 
-FROM node:18-alpine3.16 as ts-remover
+FROM node:18-alpine3.17 as ts-remover
 WORKDIR /usr/app
 COPY --from=ts-compiler /usr/app/package*.json ./
 COPY --from=ts-compiler /usr/app/dist ./
@@ -16,7 +16,7 @@ RUN apk update \
   && apk add --no-cache build-base python3 sqlite-dev
 RUN npm install --omit=dev
 
-FROM node:18-alpine3.16
+FROM node:18-alpine3.17
 WORKDIR /usr/app
 COPY --from=ts-remover /usr/app ./
 COPY .env ./

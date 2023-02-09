@@ -33,7 +33,13 @@ DISCORD_GUILD=<your discord channel ID>
 docker build -t discord-bot .
 ```
 
-4. Run the Docker container
+4. Deploy discord slash commands (on first run)
+
+```bash
+docker exec -it discord-bot node deploy-commands.js
+```
+
+5. Run the Docker container
 
 ```bash
 docker run -d discord-bot

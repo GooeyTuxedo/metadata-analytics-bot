@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Database } from "sqlite3";
 import { Alchemy, Network } from 'alchemy-sdk';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -70,7 +71,11 @@ const makeIDListBySupply = (totalSupply: number): number[] => Array.from({ lengt
 
 const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
   try {
-    const response = await axios.get(`https://ethgobblers.com/metadata/${tokenId}`)
+    const response = await axios.get(tokenId.toString(), {
+      baseURL: "https://ethgobblers.com/metadata/",
+      proxy: false,
+      httpsAgent: new HttpsProxyAgent('http://host.docker.internal:8080')
+    })
     const raw = response.data as RawGooey;
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
@@ -85,8 +90,10 @@ const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey | 
   return Promise.all(promiseList);
 }
 
-const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> =>
-getGooeyMetadataListByIdList(makeIDListBySupply(totalSupply));
+const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> => {
+  console.log(`Fetching ${totalSupply} tokens`);
+  return getGooeyMetadataListByIdList(makeIDListBySupply(totalSupply));
+}
 
 const retryFailuresInList = async (maybeGooeyList: (Gooey | null)[]): Promise<(Gooey | null)[]> => {
   const listWithRetries = maybeGooeyList.map((maybeGooey, i) => maybeGooey !== null ? getGooeyById(i) : maybeGooey)
