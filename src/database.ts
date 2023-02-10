@@ -101,6 +101,8 @@ const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey |
 
 const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | null)[]> => {
   const failureIds = gooList.reduce((fails, goo, i) => goo ? fails : fails.concat([i]), [] as number[]);
+  if (failureIds.length == 0) return gooList;
+  
   const retries = await getGooeyMetadataListByIdList(failureIds);
   const gooListWithRetries = retries.reduce((gooeys, goo): (Gooey | null)[] =>
     goo ? replaceAtIdx(gooeys, goo.tokenID, goo) : gooeys
