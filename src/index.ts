@@ -42,10 +42,12 @@ for (const file of eventFiles) {
 new CronJob({
   cronTime: `*/15 * * * *`,
   onTick: doUpdate,
-	start: true,
-	runOnInit: true
+	start: true
 })
 
-// Log in to Discord with your client's token
-client.login(token)
-  .catch(err => console.log(`Error logging into discord! ${err}`));
+// Log in to Discord with your client's token after db has been initalized
+doUpdate()
+  .then(() => {
+    return client.login(token)
+      .catch(err => console.log(`Error logging into discord! ${err}`))
+  });

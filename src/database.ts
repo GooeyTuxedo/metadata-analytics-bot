@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
+import { promiseAllInBatches } from './utility';
 
 const flattenGooey = (token: RawGooey): FlatGooey => {
   const flattenedToken: FlatGooey = {
@@ -83,7 +84,7 @@ const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
 
 const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey | null)[]> => {
   const promiseList = idList.map(getGooeyById)
-  return Promise.all(promiseList);
+  return promiseAllInBatches(getGooeyById, idList, 100);
 }
 
 const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> => {
