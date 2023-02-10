@@ -1,5 +1,7 @@
 import { Gooey } from '../types/gooey';
 
+import { underscore } from 'discord.js';
+
 const splitToGenerations = (gooeys: Gooey[]): { [key: number]: Gooey[] } =>
   gooeys.reduce((dict, goo) => {
     const { generation } = goo;
@@ -48,6 +50,26 @@ export const findAndSortByNumberOfOffspring =
   (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => 
     mapChildrenToGooey(gooeys)
       .sort((a, b) => b.children.length - a.children.length)
+
+export const findPopulationDistribution =
+  (gooeys: Gooey[]): string[] => {
+    const alive = gooeys.filter(({age}) => age != 'deceased').length;
+    const dead = gooeys.filter(({age}) => age == 'deceased').length;
+    const percent = alive ? Math.round(alive / gooeys.length * 100) : 0;
+    const overall = `${underscore('Overall Population:')}\n${alive} left alive, ${dead} out of ${gooeys.length} dead: ${percent}%`;
+
+    const generations = splitToGenerations(gooeys);
+
+    const genStrings = Object.entries(generations)
+      .map(([gen, goos]) => {
+        const alive = goos.filter(({age}) => age != 'deceased').length;
+        const dead = goos.filter(({age}) => age == 'deceased').length;
+        const percent = alive ? Math.round(alive / goos.length * 100) : 0;
+        return `Gen ${gen}: ${alive} left alive, ${dead} of ${goos.length} 🪦: ${percent}%`
+      })
+
+      return [overall].concat(genStrings);
+  }
 
 export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
   const bodyTypes = splitToBodyTypes(gooeys);

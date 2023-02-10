@@ -84,7 +84,7 @@ const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
 
 const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey | null)[]> => {
   const promiseList = idList.map(getGooeyById)
-  return promiseAllInBatches(getGooeyById, idList, 100);
+  return promiseAllInBatches(getGooeyById, idList, 10);
 }
 
 const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> => {

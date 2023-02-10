@@ -7,29 +7,29 @@ import {
   findAndSortByMitosisCredits,
   findAndSortByNumberOfOffspring,
   findExtinctBodyTypes,
+  findPopulationDistribution,
   findSingletonBodyTypes,
   findUnburiedDead
 } from '../transformations';
 
 const mkUnburiedEmbed = (list: number[]) =>
   new EmbedBuilder()
-    .setTitle(`${list.length} unburied Gooeys with 0 health`)
-    .setDescription(list.join(' '))
+    .setTitle(`${list.length} unburied Gooeys with 0 health. ☠️`)
+    .setDescription(list.join(', '))
     .setThumbnail('https://ethgobblers.com/bury-icon.svg');
 
 const mkEthLeaderboardEmbed = (list: Gooey[]) =>
   new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by ETH Gobbled`)
+    .setTitle(`Top 25 Gooey Leaderboard by ETH Gobbled 🎨`)
     .addFields(...list.map(({name, ethGobbled}, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${ethGobbled} ETH`,
       inline: true
-    })))
-    .setThumbnail('https://ethereum.org/static/655aaefb744ae2f9f818095a436d38b5/e1ebd/eth-diamond-purple-purple.png');
+    })));
 
 const mkMCLeaderboardEmbed = (list: Gooey[]) =>
   new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by Mitosis Credits`)
+    .setTitle(`Top 25 Gooey Leaderboard by Mitosis Credits 🤰`)
     .addFields(...list.map(({name, mitosisCredits}, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${mitosisCredits} MCs`,
@@ -38,7 +38,7 @@ const mkMCLeaderboardEmbed = (list: Gooey[]) =>
 
 const mkOffspringLeaderboardEmbed = (list: ({ parent: Gooey, children: Gooey[] })[]) =>
   new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by number of Offspring`)
+    .setTitle(`Top 25 Gooey Leaderboard by number of Offspring 👩‍👧‍👧`)
     .addFields(...list.map(({ parent: {name}, children }, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${children.length} kids`,
@@ -47,14 +47,18 @@ const mkOffspringLeaderboardEmbed = (list: ({ parent: Gooey, children: Gooey[] }
 
 const mkExtinctionEmbed = (list: string[]) =>
     new EmbedBuilder()
-      .setTitle(`Found ${list.length} extinct gooey types`)
+      .setTitle(`Found ${list.length} extinct gooey types. 🦖`)
       .setDescription(list.join('\n'));
 
 const mkSingletonsEmbed = (list: string[]) =>
     new EmbedBuilder()
-      .setTitle(`Found ${list.length} singleton gooey bodies`)
+      .setTitle(`Found ${list.length} singleton gooey bodies. 🩱`)
       .setDescription(list.join('\n'));
 
+const mkCensusEmbed = (list: string[]) =>
+  new EmbedBuilder()
+    .setTitle(`Gooey Generation Report 📜`)
+    .setDescription(list.join('\n'));
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -98,7 +102,12 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('singletons')
-        .setDescription('Print a list of all gooey body types with only 1 gooey left living')),
+        .setDescription('Print a list of all gooey body types with only 1 gooey left living'))
+    
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('census')
+        .setDescription('Print a report of the living and dead gooeys by generation')),
     
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -151,6 +160,12 @@ module.exports = {
         const singletonsEmbed = mkSingletonsEmbed(singletonBodyTypes);
 
         return await interaction.reply({ embeds: [singletonsEmbed] });
+      } else if (subcommand == 'census') {
+        const populationStrings = findPopulationDistribution(gooeys);
+        const censusEmbed = mkCensusEmbed(populationStrings);
+
+        return await interaction.reply({ embeds: [censusEmbed] });
+
       } else {
         return await interaction.reply(`Could not find command for subcommand "${subcommand}"`);
       }
