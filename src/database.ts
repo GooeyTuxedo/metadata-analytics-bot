@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
-import { promiseAllInBatches } from './utility';
+import { replaceAtIdx } from './utility';
 
 const flattenGooey = (token: RawGooey): FlatGooey => {
   const flattenedToken: FlatGooey = {
@@ -64,6 +64,7 @@ const getTokenIndex = async (): Promise<number> => {
 
   const { totalSupply = '2000' } = await alchemy.nft.getContractMetadata('0x0a8d311b99ddaa9ebb45fd606eb0a1533004f26b')
   if (totalSupply == '2000') console.log('FETCHING SUPPLY FAILED')
+  console.log(`Collection total supply: ${totalSupply} tokens`)
   return parseInt(totalSupply);
 }
 
@@ -71,35 +72,45 @@ const makeIDListBySupply = (totalSupply: number): number[] => Array.from({ lengt
 
 const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
   try {
+    console.log(`Fetching ${tokenId}`)
     const response = await fetch(`https://ethgobblers.com/metadata/${tokenId}`);
     const raw = await response.json() as RawGooey;
     
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
   } catch (error) {
-    console.error(`Error fetching metadata for token with id ${tokenId}: ${error}`);
+    console.error(`Error fetching with id ${tokenId}: ${error}`);
     return null;
   }
 }
 
-const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey | null)[]> => {
-  const promiseList = idList.map(getGooeyById)
-  return promiseAllInBatches(getGooeyById, idList, 10);
+const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey|null)[]> => {
+  let gooList: (Gooey | null)[] = [];
+
+  for (const id of idList) {
+    const goo = await getGooeyById(id);
+    gooList.push(goo);
+  }
+
+  return Promise.resolve(gooList);
 }
 
 const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> => {
-  console.log(`Fetching ${totalSupply} tokens`);
+  console.log(`Building gooey dataset, this may take a while`);
   return getGooeyMetadataListByIdList(makeIDListBySupply(totalSupply));
 }
 
-const retryFailuresInList = async (maybeGooeyList: (Gooey | null)[]): Promise<(Gooey | null)[]> => {
-  const listWithRetries = maybeGooeyList.map((maybeGooey, i) => maybeGooey !== null ? getGooeyById(i) : maybeGooey)
-  return Promise.all(listWithRetries);
+const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | null)[]> => {
+  const failureIds = gooList.reduce((fails, goo, i) => goo ? fails : fails.concat([i]), [] as number[]);
+  const retries = await getGooeyMetadataListByIdList(failureIds);
+  const gooListWithRetries = retries.reduce((gooeys, goo): (Gooey | null)[] =>
+    goo ? replaceAtIdx(gooeys, goo.tokenID, goo) : gooeys
+  , gooList);
+  return gooListWithRetries
 }
 
 const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
   maybeGooeyList.filter(goo => goo !== null) as Gooey[];
-
 
 const updateGooeyCollection = (gooeys: Gooey[]) => {
   const db = new Database("./db/tokens.db", (err) => {
@@ -179,8 +190,6 @@ const updateGooeyCollection = (gooeys: Gooey[]) => {
 
     stmt.finalize();
   });
-
-  
 
   db.close();
 };
