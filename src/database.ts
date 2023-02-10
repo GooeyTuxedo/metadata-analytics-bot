@@ -72,7 +72,6 @@ const makeIDListBySupply = (totalSupply: number): number[] => Array.from({ lengt
 
 const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
   try {
-    console.log(`Fetching ${tokenId}`)
     const response = await fetch(`https://ethgobblers.com/metadata/${tokenId}`);
     const raw = await response.json() as RawGooey;
     
@@ -113,7 +112,7 @@ const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
   maybeGooeyList.filter(goo => goo !== null) as Gooey[];
 
 const updateGooeyCollection = (gooeys: Gooey[]) => {
-  const db = new Database("./db/tokens.db", (err) => {
+  const db = new Database(":memory:", (err) => {
     if (err) {
       console.error(err.message);
       return;
@@ -190,8 +189,6 @@ const updateGooeyCollection = (gooeys: Gooey[]) => {
 
     stmt.finalize();
   });
-
-  db.close();
 };
 
 export function doUpdate() {
@@ -201,6 +198,6 @@ export function doUpdate() {
   .then(filterFailures)
   .then(updateGooeyCollection)
   .then(() => console.log(`Updated gooey database`))
-  .catch(() => console.log(`update failed!`));
+  .catch(() => console.log(`db update failed!`));
 }
 

@@ -4,10 +4,10 @@ import { Gooey } from "../types/gooey";
 
 
 export const fetchTokenCollection = (): Promise<Gooey[]> => {
-  const db = new Database("./db/tokens.db");
+  const db = new Database(":memory:");
 
   return new Promise((resolve, reject) => {
-    db.all(
+    return db.all(
       `SELECT tokenID, name, description, image, generation, health, disposition, age, isAwake, isBuried, mitosisCredits, parentID, body, ethGobbled
       FROM tokens`,
       (err, rows) => {
@@ -24,24 +24,20 @@ export const fetchTokenCollection = (): Promise<Gooey[]> => {
         }
       }
     );
-
-    return db.close();
   });
 }
 
 
 export const fetchSnapshotTimestamp = (): Promise<number> => {
-  const db = new Database("./db/tokens.db");
+  const db = new Database(":memory:");
 
   return new Promise((resolve, reject) => {
-    db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row) => {
+    return db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row) => {
       if (err) {
         reject(err)
       }
       resolve(row.last_update);
     });
-
-    return db.close();
   });
 }
 
