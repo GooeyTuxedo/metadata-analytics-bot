@@ -1,11 +1,8 @@
-import { Database } from "sqlite3";
-
+import { db } from "./database";
 import { Gooey } from "../types/gooey";
 
 
 export const fetchTokenCollection = (): Promise<Gooey[]> => {
-  const db = new Database(":memory:");
-
   return new Promise((resolve, reject) => {
     return db.all(
       `SELECT tokenID, name, description, image, generation, health, disposition, age, isAwake, isBuried, mitosisCredits, parentID, body, ethGobbled
@@ -29,8 +26,6 @@ export const fetchTokenCollection = (): Promise<Gooey[]> => {
 
 
 export const fetchSnapshotTimestamp = (): Promise<number> => {
-  const db = new Database(":memory:");
-
   return new Promise((resolve, reject) => {
     return db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row) => {
       if (err) {

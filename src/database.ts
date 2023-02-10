@@ -7,6 +7,14 @@ dotenv.config();
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
 import { replaceAtIdx } from './utility';
 
+export const db = new Database(":memory:", (err) => {
+  if (err) {
+    console.error(err.message);
+    return;
+  }
+  console.log("Connected to the gooey database.");
+});
+
 const flattenGooey = (token: RawGooey): FlatGooey => {
   const flattenedToken: FlatGooey = {
     tokenID: token.tokenID,
@@ -102,7 +110,7 @@ const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey |
 const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | null)[]> => {
   const failureIds = gooList.reduce((fails, goo, i) => goo ? fails : fails.concat([i]), [] as number[]);
   if (failureIds.length == 0) return gooList;
-  
+
   const retries = await getGooeyMetadataListByIdList(failureIds);
   const gooListWithRetries = retries.reduce((gooeys, goo): (Gooey | null)[] =>
     goo ? replaceAtIdx(gooeys, goo.tokenID, goo) : gooeys
@@ -114,14 +122,6 @@ const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
   maybeGooeyList.filter(goo => goo !== null) as Gooey[];
 
 const updateGooeyCollection = (gooeys: Gooey[]) => {
-  const db = new Database(":memory:", (err) => {
-    if (err) {
-      console.error(err.message);
-      return;
-    }
-    console.log("Connected to the gooey database.");
-  });
-
   db.serialize(() => {
     db.run(
       `CREATE TABLE IF NOT EXISTS tokens (
