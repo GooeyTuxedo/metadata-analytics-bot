@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, APIEmbedField, APIEmbed } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, APIEmbedField, APIEmbed, underscore } from 'discord.js';
 
 import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
 import { Gooey } from '../../types/gooey';
@@ -14,10 +14,11 @@ import {
 
 const mkUnburiedEmbed = (list: number[][][]) =>
   new EmbedBuilder()
-    .setTitle(`${list.length} unburied Gooeys with 0 health. ☠️`)
+    .setTitle(`${list.reduce(
+      (deadCount, gen) => deadCount + gen[1].length
+    , 0 as number)} unburied Gooeys with 0 health. ☠️`)
     .setDescription(list.map(([[gen], deadGoos]) =>
-      `Gen ${gen}:
-      ${deadGoos.join(', ')}`
+      `${underscore(`Gen ${gen}:`)}\n${deadGoos.join(', ')}`
     ).join('\n'))
     .setThumbnail('https://ethgobblers.com/bury-icon.svg');
 
