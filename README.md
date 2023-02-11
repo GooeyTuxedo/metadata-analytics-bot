@@ -30,19 +30,19 @@ DISCORD_GUILD=<your discord channel ID>
 3. Build the Docker image
 
 ```bash
-docker build -t discord-bot .
+docker build -t discord-query-bot .
 ```
 
-4. Deploy discord slash commands (on first run)
+4. Run the Docker container
 
 ```bash
-docker exec -it discord-bot node deploy-commands.js
+docker run -d discord-query-bot --name gooeylytics
 ```
 
-5. Run the Docker container
+5. Deploy discord slash commands (on first run)
 
 ```bash
-docker run -d discord-bot
+docker exec -it gooeylytics node deploy-commands.js
 ```
 
 ## Environment Variables
