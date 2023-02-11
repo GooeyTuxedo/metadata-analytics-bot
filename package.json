@@ -1,14 +1,15 @@
 {
   "name": "gooey-discord-query-bot",
   "type": "commonjs",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A Discord bot to query the ETH Gobblers collection metadata",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "update-db": "node dist/run-update.js",
-    "deploy-cmds": "node dist/deploy-commands.js"
+    "deploy-cmds": "node dist/deploy-commands.js",
+    "destroy-cmds": "node dist/destroy-commands.js"
   },
   "dependencies": {
     "alchemy-sdk": "^2.4.1",
