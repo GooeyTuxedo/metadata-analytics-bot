@@ -12,7 +12,7 @@ import {
   findUnburiedDead
 } from '../transformations';
 
-const mkUnburiedEmbed = (list: number[][][]) =>
+const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${list.reduce(
       (deadCount, gen) => deadCount + gen[1].length
@@ -20,18 +20,20 @@ const mkUnburiedEmbed = (list: number[][][]) =>
     .setDescription(list.map(([[gen], deadGoos]) =>
       `${underscore(`Gen ${gen}:`)}\n${deadGoos.join(', ')}`
     ).join('\n'))
-    .setThumbnail('https://ethgobblers.com/bury-icon.svg');
+    .setThumbnail('https://ethgobblers.com/bury-icon.svg')
+    .setFooter({text: timeStr});
 
-const mkEthLeaderboardEmbed = (list: Gooey[]) =>
+const mkEthLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`Top 25 Gooey Leaderboard by ETH Gobbled 🎨`)
     .addFields(...list.map(({name, ethGobbled}, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${ethGobbled} ETH`,
       inline: true
-    })));
+    })))
+    .setFooter({text: timeStr});
 
-const mkMCLeaderboardEmbed = (list: Gooey[]) =>
+const mkMCLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`Top 25 Gooey Leaderboard by Mitosis Credits 🤰`)
     .addFields(...list.map(({name, mitosisCredits}, i) => ({
@@ -39,45 +41,41 @@ const mkMCLeaderboardEmbed = (list: Gooey[]) =>
       value: `${mitosisCredits} MCs`,
       inline: true
     })))
+    .setFooter({text: timeStr});
 
-const mkOffspringLeaderboardEmbed = (list: ({ parent: Gooey, children: Gooey[] })[]) =>
-  new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by number of Offspring 👩‍👧‍👧`)
-    .addFields(...list.map(({ parent: {name}, children }, i) => ({
-      name: `${i + 1}) ${name}`,
-      value: `${children.length} kids`,
-      inline: true
-    })))
+const mkOffspringLeaderboardEmbed =
+  (list: ({ parent: Gooey, children: Gooey[] })[], timeStr: string) =>
+    new EmbedBuilder()
+      .setTitle(`Top 25 Gooey Leaderboard by number of Offspring 👩‍👧‍👧`)
+      .addFields(...list.map(({ parent: {name}, children }, i) => ({
+        name: `${i + 1}) ${name}`,
+        value: `${children.length} kids`,
+        inline: true
+      })))
+      .setFooter({text: timeStr});
 
-const mkExtinctionEmbed = (list: string[]) =>
+const mkExtinctionEmbed = (list: string[], timeStr: string) =>
     new EmbedBuilder()
       .setTitle(`Found ${list.length} extinct gooey types. 🦖`)
-      .setDescription(list.join('\n'));
+      .setDescription(list.join('\n'))
+      .setFooter({text: timeStr});
 
-const mkSingletonsEmbed = (list: string[]) =>
+const mkSingletonsEmbed = (list: string[], timeStr: string) =>
     new EmbedBuilder()
       .setTitle(`Found ${list.length} singleton gooey bodies. 🩱`)
-      .setDescription(list.join('\n'));
+      .setDescription(list.join('\n'))
+      .setFooter({text: timeStr});
 
-const mkCensusEmbed = (list: string[]) =>
+const mkCensusEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`Gooey Generation Report 📜`)
-    .setDescription(list.join('\n'));
+    .setDescription(list.join('\n'))
+    .setFooter({text: timeStr});
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('gooeylytics')
+    .setName('gooey')
     .setDescription('Run a query on the gooey-db')
-
-    .addSubcommand(subcommand => 
-      subcommand
-        .setName('updated-at')
-        .setDescription('Print the time of last db update'))
-
-    .addSubcommand(subcommand => 
-      subcommand
-        .setName('update-db')
-        .setDescription('Fetch a new gooey collection snapshot and commit to db'))
 
     .addSubcommand(subcommand =>
       subcommand
@@ -100,37 +98,30 @@ module.exports = {
 
     .addSubcommand(subcommand =>
       subcommand
-        .setName('extinct-types')
+        .setName('extinct')
         .setDescription('Print a list of all gooey body types with no living members'))
 
     .addSubcommand(subcommand =>
       subcommand
-        .setName('singletons')
+        .setName('singles')
         .setDescription('Print a list of all gooey body types with only 1 gooey left living'))
     
     .addSubcommand(subcommand =>
       subcommand
-        .setName('census')
+        .setName('stats')
         .setDescription('Print a report of the living and dead gooeys by generation')),
     
 
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
     const gooeys = await fetchTokenCollection()
+    const rawTimestamp =  await fetchSnapshotTimestamp();
+    const snapshotTimestampStr = `Gooey database last updated at ${new Date(rawTimestamp).toUTCString()}`;
 
 
-      if (subcommand == 'updated-at') {
-        const rawTimestamp =  await fetchSnapshotTimestamp();
-        const snapshotTimestamp = new Date(rawTimestamp);
-    
-        return await interaction.reply(`Gooey database last updated at ${snapshotTimestamp.toUTCString()}`);
-
-      } else if (subcommand == 'update-db') {
-          return await interaction.reply(`TODO: remove, this does nothing`);
-
-      } else if (subcommand == 'unburied') {
+      if (subcommand == 'unburied') {
         const unburiedDead = findUnburiedDead(gooeys)
-        const unburiedEmbed = mkUnburiedEmbed(unburiedDead)
+        const unburiedEmbed = mkUnburiedEmbed(unburiedDead, snapshotTimestampStr)
 
         return await interaction.reply({ embeds: [unburiedEmbed] });
 
@@ -139,40 +130,36 @@ module.exports = {
 
         if (field == 'ethGobbled') {
           const top25ETHGobbled = findAndSortByETHGobbled(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkEthLeaderboardEmbed(top25ETHGobbled);
+          const leaderboardEmbed = mkEthLeaderboardEmbed(top25ETHGobbled, snapshotTimestampStr);
 
           return await interaction.reply({ embeds: [leaderboardEmbed] });
         } else if (field == 'mitosisCredits') {
           const top25MitosisCredits = findAndSortByMitosisCredits(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkMCLeaderboardEmbed(top25MitosisCredits);
+          const leaderboardEmbed = mkMCLeaderboardEmbed(top25MitosisCredits, snapshotTimestampStr);
 
           return await interaction.reply({ embeds: [leaderboardEmbed] });
         } else {
           const top25ByOffspring = findAndSortByNumberOfOffspring(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkOffspringLeaderboardEmbed(top25ByOffspring);
+          const leaderboardEmbed = mkOffspringLeaderboardEmbed(top25ByOffspring, snapshotTimestampStr);
 
           return await interaction.reply({ embeds: [leaderboardEmbed] });
         }
-      } else if (subcommand == 'extinct-types') {
+      } else if (subcommand == 'extinct') {
         const extinctBodyTypes = findExtinctBodyTypes(gooeys);
-        const extinctionEmbed = mkExtinctionEmbed(extinctBodyTypes);
+        const extinctionEmbed = mkExtinctionEmbed(extinctBodyTypes, snapshotTimestampStr);
 
         return await interaction.reply({ embeds: [extinctionEmbed] });
 
-      } else if (subcommand == 'singletons') {
+      } else if (subcommand == 'singles') {
         const singletonBodyTypes = findSingletonBodyTypes(gooeys);
-        const singletonsEmbed = mkSingletonsEmbed(singletonBodyTypes);
+        const singletonsEmbed = mkSingletonsEmbed(singletonBodyTypes, snapshotTimestampStr);
 
         return await interaction.reply({ embeds: [singletonsEmbed] });
-      } else if (subcommand == 'census') {
+      } else if (subcommand == 'stats') {
         const populationStrings = findPopulationDistribution(gooeys);
-        const censusEmbed = mkCensusEmbed(populationStrings);
+        const censusEmbed = mkCensusEmbed(populationStrings, snapshotTimestampStr);
 
         return await interaction.reply({ embeds: [censusEmbed] });
-
-      } else {
-        return await interaction.reply(`Could not find command for subcommand "${subcommand}"`);
       }
-
   }
 }

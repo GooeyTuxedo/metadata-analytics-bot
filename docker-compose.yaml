@@ -3,8 +3,5 @@ services:
   app:
     build: .
     working_dir: /usr/app
-    volumes:
-      - "./db:/usr/app/db"
     environment:
       - NODE_ENV=production
-    user: root
