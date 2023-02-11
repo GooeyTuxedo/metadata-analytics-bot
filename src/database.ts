@@ -7,7 +7,7 @@ dotenv.config();
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
 import { replaceAtIdx } from './utility';
 
-export const db = new Database(":memory:", (err) => {
+export const db = new Database("./db/tokens.db", (err) => {
   if (err) {
     console.error(err.message);
     return;
