@@ -12,10 +12,13 @@ import {
   findUnburiedDead
 } from '../transformations';
 
-const mkUnburiedEmbed = (list: number[]) =>
+const mkUnburiedEmbed = (list: number[][][]) =>
   new EmbedBuilder()
     .setTitle(`${list.length} unburied Gooeys with 0 health. ☠️`)
-    .setDescription(list.join(', '))
+    .setDescription(list.map(([[gen], deadGoos]) =>
+      `Gen ${gen}:
+      ${deadGoos.join(', ')}`
+    ).join('\n'))
     .setThumbnail('https://ethgobblers.com/bury-icon.svg');
 
 const mkEthLeaderboardEmbed = (list: Gooey[]) =>

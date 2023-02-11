@@ -34,9 +34,12 @@ const mapChildrenToGooey = (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[
     .filter(({children}) => children.length > 0);
 }
 
-export const findUnburiedDead = (gooeys: Gooey[]): number[] =>
-  gooeys.filter(({health,isBuried}) => !isBuried && health == 0)
-    .map(goo => goo.tokenID);
+export const findUnburiedDead = (gooeys: Gooey[]): number[][][] => {
+  const deads = gooeys.filter(({health,isBuried}) => !isBuried && health == 0);
+  const deadsByGen = splitToGenerations(deads)
+  return Object.entries(deadsByGen)
+    .map(([gen, goos]) => ([[parseInt(gen)], goos.map(goo => goo.tokenID)]))
+}
 
 export const findAndSortByMitosisCredits = (gooeys: Gooey[]): Gooey[] =>
   gooeys.filter(({mitosisCredits}) => mitosisCredits > 0)
@@ -108,4 +111,11 @@ export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
     .map(([extinctBodyType]) => extinctBodyType as string);
 }
 
+
+export const findFamilyTree =
+  (gooeys: Gooey[]) => (gooId: number) => {
+    const pluckById = (id: number) => gooeys.find(({tokenID}) => id == tokenID);
+
+    const children = mapChildrenToGooey(gooeys);
+  }
 
