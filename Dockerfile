@@ -20,7 +20,6 @@ FROM node:18-alpine3.17
 WORKDIR /usr/app
 COPY --from=ts-remover /usr/app ./
 COPY .env ./
-VOLUME [ "/usr/app/db" ]
 RUN apk update \
   && apk add --no-cache sqlite-dev sqlite
 CMD node index.js
