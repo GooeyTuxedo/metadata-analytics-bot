@@ -10,7 +10,7 @@ import { doUpdate } from './database';
 
 const token = process.env.DISCORD_TOKEN
 
-const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds] });
+const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));

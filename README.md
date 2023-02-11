@@ -24,7 +24,6 @@ git clone https://github.com/GooeyTuxedo/metadata-analytics-bot.git
 ALCHEMY_API_KEY=<your alchemy api key>
 DISCORD_TOKEN=<your discord bot token>
 DISCORD_CLIENT=<your discord client ID>
-DISCORD_GUILD=<your discord channel ID>
 ```
 
 3. Build the Docker image
@@ -51,5 +50,4 @@ The following environment variables must be set in the .env file in order for th
 
 - ALCHEMY_API_KEY: your alchemy api key.
 - DISCORD_TOKEN: the token for your Discord bot.
-- DISCORD_CLIENT: the client ID for your Discord bot.
-- DISCORD_GUILD: the guild ID for your Discord server.
+- DISCORD_CLIENT: the client ID for your Discord bot. (app ID)
