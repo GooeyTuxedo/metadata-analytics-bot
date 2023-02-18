@@ -48,7 +48,7 @@ doUpdate()
       .catch(err => console.log(`Error logging into discord! ${err}`))
   })
   .then(() => new CronJob({
-    cronTime: `*/15 * * * *`,
+    cronTime: `*/60 * * * *`,
     onTick: doUpdate,
     start: true
   }));
