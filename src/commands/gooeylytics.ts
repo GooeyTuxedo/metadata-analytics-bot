@@ -17,9 +17,9 @@ const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
     .setTitle(`${list.reduce(
       (deadCount, gen) => deadCount + gen[1].length
     , 0 as number)} unburied Gooeys with 0 health. ☠️`)
-    .setDescription(list.map(([[gen], deadGoos]) =>
+    .setDescription(list.length ? list.map(([[gen], deadGoos]) =>
       `${underscore(`Gen ${gen}:`)}\n${deadGoos.join(', ')}`
-    ).join('\n'))
+    ).join('\n') : 'All gooeys healthy! :tada:')
     .setThumbnail('https://ethgobblers.com/bury-icon.svg')
     .setFooter({text: timeStr});
 
@@ -57,7 +57,7 @@ const mkOffspringLeaderboardEmbed =
 const mkExtinctionEmbed = (list: string[], timeStr: string) =>
     new EmbedBuilder()
       .setTitle(`Found ${list.length} extinct gooey types. 🦖`)
-      .setDescription(list.join('\n'))
+      .setDescription(list.sort().join('\n'))
       .setFooter({text: timeStr});
 
 const mkSingletonsEmbed = (list: string[], timeStr: string) =>
