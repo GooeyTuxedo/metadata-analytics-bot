@@ -6,7 +6,7 @@ dotenv.config();
 
 import { GatewayIntentBits } from 'discord.js';
 import { DiscordClient } from './discordClient';
-import { doUpdate } from './database';
+import { doUpdate, doUpdateLoop } from './database';
 
 const token = process.env.DISCORD_TOKEN
 
@@ -47,8 +47,9 @@ doUpdate()
     await client.login(token)
       .catch(err => console.log(`Error logging into discord! ${err}`))
   })
-  .then(() => new CronJob({
-    cronTime: `*/60 * * * *`,
-    onTick: doUpdate,
-    start: true
-  }));
+  .then(() => doUpdateLoop())
+  // .then(() => new CronJob({
+  //   cronTime: `*/60 * * * *`,
+  //   onTick: doUpdate,
+  //   start: true
+  // }));

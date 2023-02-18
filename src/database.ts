@@ -203,3 +203,6 @@ export function doUpdate() {
   .catch(() => console.log(`db update failed!`));
 }
 
+export function doUpdateLoop(): void {
+  doUpdate().then(() => doUpdateLoop())
+}
