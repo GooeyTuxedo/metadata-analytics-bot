@@ -35,7 +35,7 @@ docker build -t discord-query-bot .
 4. Run the Docker container
 
 ```bash
-docker run -d discord-query-bot --name gooeylytics
+docker run --name gooeylytics -d discord-query-bot
 ```
 
 5. Deploy discord slash commands (on first run)
@@ -43,6 +43,12 @@ docker run -d discord-query-bot --name gooeylytics
 ```bash
 docker exec -it gooeylytics node deploy-commands.js
 ```
+
+- Destroy discord slash commands (if needed) 
+```bash
+docker exec -it gooeylytics node destroy-commands.js
+```
+
 
 ## Environment Variables
 
