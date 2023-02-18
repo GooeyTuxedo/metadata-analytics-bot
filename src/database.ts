@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 import { Database } from 'sqlite3';
 import { Alchemy, Network } from 'alchemy-sdk';
 import * as dotenv from 'dotenv';
@@ -80,8 +80,8 @@ const makeIDListBySupply = (totalSupply: number): number[] => Array.from({ lengt
 
 const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
   try {
-    const response = await fetch(`https://ethgobblers.com/metadata/${tokenId}`);
-    const raw = await response.json() as RawGooey;
+    const response = await axios.get(`https://ethgobblers.com/metadata/${tokenId}`)
+    const raw = response.data as RawGooey;
     
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
