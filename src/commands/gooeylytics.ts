@@ -75,7 +75,7 @@ const mkCensusEmbed = (list: string[], timeStr: string) =>
 
 const mkFullSetsEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`Gen 1 body types with all 4 left living`)
+    .setTitle(`Found ${list.length} gen 1 body types with all 4 left living`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
   
