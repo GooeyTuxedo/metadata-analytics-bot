@@ -211,9 +211,7 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function doUpdateLoop(): void {
-  doUpdate().then(async () => {
-    await sleep(900000)
-    return doUpdateLoop()
-  }) // run another update after 15 minutes
+export async function doUpdateLoop(): Promise<void> {
+  await sleep(900000);
+  doUpdate().then(() => doUpdateLoop()) // run another update after 15 minutes
 }
