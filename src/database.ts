@@ -207,6 +207,13 @@ export function doUpdate() {
   .catch(() => console.log(`db update failed!`));
 }
 
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function doUpdateLoop(): void {
-  doUpdate().then(() => setTimeout(doUpdateLoop, 900000)) // run another update after 15 minutes
+  doUpdate().then(async () => {
+    await sleep(900000)
+    return doUpdateLoop()
+  }) // run another update after 15 minutes
 }
