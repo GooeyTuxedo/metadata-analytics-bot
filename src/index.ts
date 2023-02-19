@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CronJob } from 'cron';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
