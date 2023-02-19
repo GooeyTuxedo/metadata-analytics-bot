@@ -7,6 +7,7 @@ import {
   findAndSortByMitosisCredits,
   findAndSortByNumberOfOffspring,
   findExtinctBodyTypes,
+  findFullGenesisSets,
   findPopulationDistribution,
   findSingletonBodyTypes,
   findUnburiedDead
@@ -72,6 +73,13 @@ const mkCensusEmbed = (list: string[], timeStr: string) =>
     .setDescription(list.join('\n'))
     .setFooter({text: timeStr});
 
+const mkFullSetsEmbed = (list: string[], timeStr: string) =>
+  new EmbedBuilder()
+    .setTitle(`Gen 1 body types with all 4 left living`)
+    .setDescription(list.sort().join('\n'))
+    .setFooter({text: timeStr});
+  
+    
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('gooey')
@@ -100,6 +108,11 @@ module.exports = {
       subcommand
         .setName('extinct')
         .setDescription('Print a list of all gooey body types with no living members'))
+
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('full-sets')
+        .setDescription('Print a list of genesis body types with all members still living'))
 
     .addSubcommand(subcommand =>
       subcommand
@@ -149,6 +162,12 @@ module.exports = {
         const extinctionEmbed = mkExtinctionEmbed(extinctBodyTypes, snapshotTimestampStr);
 
         return await interaction.reply({ embeds: [extinctionEmbed] });
+
+      } else if (subcommand == 'full-sets') {
+        const fullSets = findFullGenesisSets(gooeys);
+        const fullSetsEmbed = mkFullSetsEmbed(fullSets, snapshotTimestampStr);
+
+        return await interaction.reply({ embeds: [fullSetsEmbed] });
 
       } else if (subcommand == 'singles') {
         const singletonBodyTypes = findSingletonBodyTypes(gooeys);

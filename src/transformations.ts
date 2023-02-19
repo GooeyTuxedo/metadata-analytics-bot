@@ -111,6 +111,14 @@ export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
     .map(([extinctBodyType]) => extinctBodyType as string);
 }
 
+export const findFullGenesisSets = (gooeys: Gooey[]): string[] => {
+  const gen1 = splitToGenerations(gooeys)[1];
+  const bodyTypes = splitToBodyTypes(gen1);
+  return Object.entries(bodyTypes)
+    .reduce(
+      (acc, [body, goos]) => goos.filter(({isBuried}) => !isBuried).length == 4 ? acc.concat([body]) : acc
+    , [] as string[])
+}
 
 export const findFamilyTree =
   (gooeys: Gooey[]) => (gooId: number) => {
@@ -118,4 +126,3 @@ export const findFamilyTree =
 
     const children = mapChildrenToGooey(gooeys);
   }
-

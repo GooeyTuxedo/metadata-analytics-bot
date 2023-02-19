@@ -1,7 +1,7 @@
 {
   "name": "gooey-discord-query-bot",
   "type": "commonjs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A Discord bot to query the ETH Gobblers collection metadata",
   "main": "index.js",
   "scripts": {
