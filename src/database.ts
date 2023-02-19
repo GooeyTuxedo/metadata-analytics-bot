@@ -6,6 +6,7 @@ dotenv.config();
 
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
 import { replaceAtIdx } from './utility';
+import { chunk } from 'lodash';
 
 export const db = new Database(":memory:", (err) => {
   if (err) {
@@ -86,20 +87,22 @@ const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
     const flat = flattenGooey(raw);
     return hydrateGooey(flat);
   } catch (error) {
-    console.error(`Error fetching with id ${tokenId}: ${error}`);
+//    quiet down logs for a bit
+//    console.error(`Error fetching with id ${tokenId}: ${error}`);
     return null;
   }
 }
 
 const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey|null)[]> => {
-  let gooList: (Gooey | null)[] = [];
+  const chunkedIDs = chunk(idList, 100);
+  let gooList = [];
 
-  for (const id of idList) {
-    const goo = await getGooeyById(id);
-    gooList.push(goo);
+  for (const c of chunkedIDs) {
+    const goos = await Promise.all(c.map(getGooeyById)).then(list => list);
+    gooList.push(goos);
   }
 
-  return Promise.resolve(gooList);
+  return Promise.resolve(gooList.flat());
 }
 
 const getGooeyCollectionBySupply = async (totalSupply: number): Promise<(Gooey | null)[]> => {
@@ -111,6 +114,7 @@ const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | 
   const failureIds = gooList.reduce((fails, goo, i) => goo ? fails : fails.concat([i]), [] as number[]);
   if (failureIds.length == 0) return gooList;
 
+  console.log("Failed to fetch these tokens, retrying: ", failureIds)
   const retries = await getGooeyMetadataListByIdList(failureIds);
   const gooListWithRetries = retries.reduce((gooeys, goo): (Gooey | null)[] =>
     goo ? replaceAtIdx(gooeys, goo.tokenID, goo) : gooeys
@@ -204,5 +208,5 @@ export function doUpdate() {
 }
 
 export function doUpdateLoop(): void {
-  doUpdate().then(() => doUpdateLoop())
+  doUpdate().then(() => setTimeout(doUpdateLoop, 900000)) // run another update after 15 minutes
 }
