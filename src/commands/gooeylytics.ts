@@ -82,7 +82,7 @@ const mkFullSetsEmbed = (list: string[], timeStr: string) =>
 
 const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`1/1 gooeys in Generation ${gen}`)
+    .setTitle(`${list.length} 1/1 gooeys in Generation ${gen}`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
 
