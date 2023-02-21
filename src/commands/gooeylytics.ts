@@ -8,6 +8,7 @@ import {
   findAndSortByNumberOfOffspring,
   findExtinctBodyTypes,
   findFullGenesisSets,
+  findOneOfOnesByGen,
   findPopulationDistribution,
   findSingletonBodyTypes,
   findUnburiedDead
@@ -64,7 +65,7 @@ const mkExtinctionEmbed = (list: string[], timeStr: string) =>
 const mkSingletonsEmbed = (list: string[], timeStr: string) =>
     new EmbedBuilder()
       .setTitle(`Found ${list.length} singleton gooey bodies. 🩱`)
-      .setDescription(list.join('\n'))
+      .setDescription(list.sort().join('\n'))
       .setFooter({text: timeStr});
 
 const mkCensusEmbed = (list: string[], timeStr: string) =>
@@ -78,8 +79,13 @@ const mkFullSetsEmbed = (list: string[], timeStr: string) =>
     .setTitle(`Found ${list.length} gen 1 body types with all 4 left living`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
-  
-    
+
+const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =>
+  new EmbedBuilder()
+    .setTitle(`1/1 gooeys in Generation ${gen}`)
+    .setDescription(list.sort().join('\n'))
+    .setFooter({text: timeStr});
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('gooey')
@@ -113,6 +119,18 @@ module.exports = {
       subcommand
         .setName('full-sets')
         .setDescription('Print a list of genesis body types with all members still living'))
+
+        .addSubcommand(subcommand =>
+          subcommand
+            .setName('one-of-ones')
+            .setDescription('Print a list of 1/1 body types')
+            .addStringOption(option => 
+              option.setName('generation')
+                .setDescription('The generation to print')
+                .setRequired(true)
+                .addChoices(
+                  { name: '2', value: '2' }
+                )))
 
     .addSubcommand(subcommand =>
       subcommand
@@ -168,6 +186,22 @@ module.exports = {
         const fullSetsEmbed = mkFullSetsEmbed(fullSets, snapshotTimestampStr);
 
         return await interaction.reply({ embeds: [fullSetsEmbed] });
+
+      } else if (subcommand == 'one-of-ones') {
+      const gen = interaction.options.getString('generation')
+      const findByGen = findOneOfOnesByGen(gooeys)
+
+        if (gen == '2') {
+          const gen2OneOfOnes = findByGen(2)
+          const oneOfOneEmbed = mkOneOfOnesEmbed(2, gen2OneOfOnes, snapshotTimestampStr);
+
+          return await interaction.reply({ embeds: [oneOfOneEmbed] });
+        } else if (gen == '3') {
+          const gen2OneOfOnes = findByGen(3)
+          const oneOfOneEmbed = mkOneOfOnesEmbed(3, gen2OneOfOnes, snapshotTimestampStr);
+
+          return await interaction.reply({ embeds: [oneOfOneEmbed] });
+        }
 
       } else if (subcommand == 'singles') {
         const singletonBodyTypes = findSingletonBodyTypes(gooeys);

@@ -1,6 +1,6 @@
-import { Gooey } from '../types/gooey';
-
 import { underscore } from 'discord.js';
+import { Gooey } from '../types/gooey';
+import { oneOfOneIDs } from './lib';
 
 const splitToGenerations = (gooeys: Gooey[]): { [key: number]: Gooey[] } =>
   gooeys.reduce((dict, goo) => {
@@ -77,6 +77,9 @@ export const findPopulationDistribution =
 export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
   const bodyTypes = splitToBodyTypes(gooeys);
   const children = splitToChildren(gooeys);
+  const oneOfOneTypes = gooeys
+    .filter(({tokenID}) => oneOfOneIDs[2].includes(tokenID))
+    .map(({body}) => body);
 
   const hasLivingChildren = (tokenID: number): boolean =>
     (children[tokenID]) ?
@@ -87,7 +90,8 @@ export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
   return Object.entries(bodyTypes)
     .map(([body, gooeys]) => ([ body, gooeys.filter(goo => !goo.isBuried) ]))
     .filter(([_, aliveGooeys]) => aliveGooeys.length == 1)
-    .map(([singletonBodyType]) => singletonBodyType as string);
+    .map(([singletonBodyType]) => singletonBodyType as string)
+    .filter(body => !oneOfOneTypes.includes(body));
 }
 
 export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
@@ -120,9 +124,17 @@ export const findFullGenesisSets = (gooeys: Gooey[]): string[] => {
     , [] as string[])
 }
 
-export const findFamilyTree =
-  (gooeys: Gooey[]) => (gooId: number) => {
-    const pluckById = (id: number) => gooeys.find(({tokenID}) => id == tokenID);
+// export const findFamilyTree =
+//   (gooeys: Gooey[]) => (gooId: number) => {
+//     const pluckById = (id: number) => gooeys.find(({tokenID}) => id == tokenID);
 
-    const children = mapChildrenToGooey(gooeys);
+//     const children = mapChildrenToGooey(gooeys);
+//   }
+
+export const findOneOfOnesByGen =
+  (gooeys: Gooey[]) => (gen: number) => {
+    const oneOfOneTypes = gooeys
+      .filter(({tokenID}) => oneOfOneIDs[gen].includes(tokenID))
+      .map(({body}) => body as string);
+    return oneOfOneTypes;
   }
