@@ -49,7 +49,32 @@ docker exec -it gooeylytics node deploy-commands.js
 docker exec -it gooeylytics node destroy-commands.js
 ```
 
+## Rebuilding with new changes
 
+1. Stop the running bot and remove container by same name
+
+```bash
+docker kill gooeylytics && docker rm gooeylytics
+```
+
+2. Pull the new work
+
+```bash
+git pull
+```
+
+3. Build and Run
+
+```bash
+docker build -t discord-query-bot . && docker run --name gooeylytics -d discord-query-bot
+```
+
+Note: You may want to occasionally clear unused docker images and cache items like this:
+
+```bash
+docker system prune
+```
+ 
 ## Environment Variables
 
 The following environment variables must be set in the .env file in order for the bot to function properly:
