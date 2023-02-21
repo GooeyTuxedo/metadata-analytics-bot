@@ -203,7 +203,7 @@ export function doUpdate() {
   .then(retryFailuresInList)
   .then(filterFailures)
   .then(updateGooeyCollection)
-  .then(() => console.log(`Updated gooey database`))
+  .then(() => console.log(`Updated gooey database at ${new Date().toUTCString()}`))
   .catch(() => console.log(`db update failed!`));
 }
 
