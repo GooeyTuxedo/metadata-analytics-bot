@@ -8,6 +8,7 @@ import {
   findAndSortByNumberOfOffspring,
   findExtinctBodyTypes,
   findFullGenesisSets,
+  findLowHealth,
   findOneOfOnesByGen,
   findPopulationDistribution,
   findSingletonBodyTypes,
@@ -23,6 +24,16 @@ const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
       `${underscore(`Gen ${gen}:`)}\n${deadGoos.join(', ')}`
     ).join('\n') : 'All gooeys healthy! :tada:')
     .setThumbnail('https://ethgobblers.com/bury-icon.svg')
+    .setFooter({text: timeStr});
+
+const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
+  new EmbedBuilder()
+    .setTitle(`${list.reduce(
+      (sadCount, gen) => sadCount + gen[1].length
+    , 0 as number)} Gooeys with low health.`)
+    .setDescription(list.length ? list.map(([[gen], sadGoos]) =>
+      `${underscore(`Gen ${gen}:`)}\n${sadGoos.join(', ')}`
+    ).join('\n') : 'All gooeys healthy! :tada:')
     .setFooter({text: timeStr});
 
 const mkEthLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
@@ -98,6 +109,11 @@ module.exports = {
     
     .addSubcommand(subcommand =>
       subcommand
+        .setName('low-health')
+        .setDescription('Print a list of all Gooeys that may hit zero health in 1-2 health drops'))
+    
+    .addSubcommand(subcommand =>
+      subcommand
         .setName('leaderboard')
         .setDescription('Top 25 gooey leaderboard')
         .addStringOption(option => 
@@ -155,6 +171,12 @@ module.exports = {
         const unburiedEmbed = mkUnburiedEmbed(unburiedDead, snapshotTimestampStr)
 
         return await interaction.reply({ embeds: [unburiedEmbed] });
+
+      } else if (subcommand == 'low-health') {
+          const sadGooeys = findLowHealth(gooeys)
+          const lowHealthEmbed = mkLowHealthEmbed(sadGooeys, snapshotTimestampStr)
+  
+          return await interaction.reply({ embeds: [lowHealthEmbed] });
 
       } else if (subcommand == 'leaderboard') {
         const field = interaction.options.getString('field')
