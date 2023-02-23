@@ -145,7 +145,8 @@ module.exports = {
                 .setDescription('The generation to print')
                 .setRequired(true)
                 .addChoices(
-                  { name: '2', value: '2' }
+                  { name: '2', value: '2' },
+                  { name: '3', value: '3' }
                 )))
 
     .addSubcommand(subcommand =>
