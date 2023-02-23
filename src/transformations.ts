@@ -84,8 +84,9 @@ export const findPopulationDistribution =
 export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
   const bodyTypes = splitToBodyTypes(gooeys);
   const children = splitToChildren(gooeys);
+  const oneOfOnes = oneOfOneIDs[2].concat(oneOfOneIDs[3])
   const oneOfOneTypes = gooeys
-    .filter(({tokenID}) => oneOfOneIDs[2].includes(tokenID))
+    .filter(({tokenID}) => oneOfOnes.includes(tokenID))
     .map(({body}) => body);
 
   const hasLivingChildren = (tokenID: number): boolean =>
