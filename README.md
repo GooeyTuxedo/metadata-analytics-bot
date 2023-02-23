@@ -6,7 +6,7 @@ This Docker image contains a Discord bot built with Node.js and utilizes SQLite 
 
 ## Requirements
 
-- Docker
+- Docker + Docker Compose
 - A Discord bot token
 - An Alchemy API key
 
@@ -26,19 +26,13 @@ DISCORD_TOKEN=<your discord bot token>
 DISCORD_CLIENT=<your discord client ID>
 ```
 
-3. Build the Docker image
+3. Run the Docker container
 
 ```bash
-docker build -t discord-query-bot .
+docker compose up -d
 ```
 
-4. Run the Docker container
-
-```bash
-docker run --name gooeylytics -d discord-query-bot
-```
-
-5. Deploy discord slash commands (on first run)
+4. Deploy discord slash commands (on first run)
 
 ```bash
 docker exec -it gooeylytics node deploy-commands.js
@@ -49,12 +43,18 @@ docker exec -it gooeylytics node deploy-commands.js
 docker exec -it gooeylytics node destroy-commands.js
 ```
 
+- View container logs
+
+```bash
+docker logs -f gooeylytics
+```
+
 ## Rebuilding with new changes
 
 1. Stop the running bot and remove container by same name
 
 ```bash
-docker kill gooeylytics && docker rm gooeylytics
+docker compose down
 ```
 
 2. Pull the new work
@@ -66,10 +66,10 @@ git pull
 3. Build and Run
 
 ```bash
-docker build -t discord-query-bot . && docker run --name gooeylytics -d discord-query-bot
+docker compose up -d
 ```
 
-Note: You may want to occasionally clear unused docker images and cache items like this:
+#### Note: You may want to occasionally clear unused docker images and cache items (this can take a very long time):
 
 ```bash
 docker system prune
@@ -80,5 +80,5 @@ docker system prune
 The following environment variables must be set in the .env file in order for the bot to function properly:
 
 - ALCHEMY_API_KEY: your alchemy api key.
-- DISCORD_TOKEN: the token for your Discord bot.
+- DISCORD_TOKEN: the Oauth2 token for your Discord bot.
 - DISCORD_CLIENT: the client ID for your Discord bot. (app ID)
