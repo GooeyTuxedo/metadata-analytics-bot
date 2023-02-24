@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, APIEmbedField, APIEmbed, underscore } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore } from 'discord.js';
 
 import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
 import { Gooey } from '../../types/gooey';
@@ -21,7 +21,7 @@ const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
       (deadCount, gen) => deadCount + gen[1].length
     , 0 as number)} unburied Gooeys with 0 health. ☠️`)
     .setDescription(list.length ? list.map(([[gen], deadGoos]) =>
-      `${underscore(`Gen ${gen}:`)}\n${deadGoos.join(', ')}`
+      `${bold(underscore(`Gen ${gen}:`))}\n${deadGoos.join(', ')}`
     ).join('\n') : 'All gooeys healthy! :tada:')
     .setThumbnail('https://ethgobblers.com/bury-icon.svg')
     .setFooter({text: timeStr});
@@ -30,9 +30,9 @@ const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${list.reduce(
       (sadCount, gen) => sadCount + gen[1].length
-    , 0 as number)} Gooeys with low health.`)
+    , 0 as number)} Gooeys with low health. 🤒`)
     .setDescription(list.length ? list.map(([[gen], sadGoos]) =>
-      `${underscore(`Gen ${gen}:`)}\n${sadGoos.join(', ')}`
+      `${bold(underscore(`Gen ${gen}:`))}\n${sadGoos.join(', ')}`
     ).join('\n') : 'All gooeys healthy! :tada:')
     .setFooter({text: timeStr});
 
@@ -87,13 +87,13 @@ const mkCensusEmbed = (list: string[], timeStr: string) =>
 
 const mkFullSetsEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`Found ${list.length} gen 1 body types with all 4 left living`)
+    .setTitle(`Found ${list.length} gen 1 body types with all 4 left living. :mirror_ball:`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
 
 const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`${list.length} 1/1 gooeys in Generation ${gen}`)
+    .setTitle(`${list.length} 1/1 gooeys in Generation ${gen}. 🦄`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
 
@@ -105,12 +105,12 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('unburied')
-        .setDescription('Print a list of all Gooeys at zero health that have not been buried'))
+        .setDescription('List all Gooeys at zero health that have not been buried'))
     
     .addSubcommand(subcommand =>
       subcommand
         .setName('low-health')
-        .setDescription('Print a list of all Gooeys that may hit zero health in 1-2 health drops'))
+        .setDescription('List all Gooeys under 8 health'))
     
     .addSubcommand(subcommand =>
       subcommand
@@ -129,17 +129,17 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('extinct')
-        .setDescription('Print a list of all gooey body types with no living members'))
+        .setDescription('List all gooey body types with no living members'))
 
     .addSubcommand(subcommand =>
       subcommand
         .setName('full-sets')
-        .setDescription('Print a list of genesis body types with all members still living'))
+        .setDescription('List genesis body types with all members still living'))
 
         .addSubcommand(subcommand =>
           subcommand
             .setName('one-of-ones')
-            .setDescription('Print a list of 1/1 body types')
+            .setDescription('List 1/1 body types')
             .addStringOption(option => 
               option.setName('generation')
                 .setDescription('The generation to print')
@@ -152,12 +152,12 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('singles')
-        .setDescription('Print a list of all gooey body types with only 1 gooey left living'))
+        .setDescription('List all body types with only 1 gooey left living'))
     
     .addSubcommand(subcommand =>
       subcommand
         .setName('stats')
-        .setDescription('Print a report of the living and dead gooeys by generation')),
+        .setDescription('Report living and dead gooeys by generation')),
     
 
   async execute(interaction: ChatInputCommandInteraction) {
