@@ -66,7 +66,7 @@ git pull
 3. Build and Run
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 #### Note: You may want to occasionally clear unused docker images and cache items (this can take a very long time):
