@@ -1,8 +1,11 @@
-import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore, Interaction } from 'discord.js';
+// @ts-ignore
+import page from 'discord-pagination-advanced';
 
 import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
 import { Gooey } from '../../types/gooey';
 import {
+  splitToGenerations,
   findAndSortByETHGobbled,
   findAndSortByMitosisCredits,
   findAndSortByNumberOfOffspring,
@@ -36,9 +39,9 @@ const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
     ).join('\n') : 'All gooeys healthy! :tada:')
     .setFooter({text: timeStr});
 
-const mkEthLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
+const mkEthLeaderboardEmbed = (set: string, list: Gooey[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by ETH Gobbled 🎨`)
+    .setTitle(`${set} Gooey Leaderboard by ETH Gobbled 🎨`)
     .addFields(...list.map(({name, ethGobbled}, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${ethGobbled} ETH`,
@@ -46,9 +49,9 @@ const mkEthLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
     })))
     .setFooter({text: timeStr});
 
-const mkMCLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
+const mkMCLeaderboardEmbed = (set: string, list: Gooey[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`Top 25 Gooey Leaderboard by Mitosis Credits 🤰`)
+    .setTitle(`${set} Gooey Leaderboard by Mitosis Credits 🤰`)
     .addFields(...list.map(({name, mitosisCredits}, i) => ({
       name: `${i + 1}) ${name}`,
       value: `${mitosisCredits} MCs`,
@@ -57,12 +60,12 @@ const mkMCLeaderboardEmbed = (list: Gooey[], timeStr: string) =>
     .setFooter({text: timeStr});
 
 const mkOffspringLeaderboardEmbed =
-  (list: ({ parent: Gooey, children: Gooey[] })[], timeStr: string) =>
+  (set: string, list: ({ parent: Gooey, children: Gooey[] })[], timeStr: string) =>
     new EmbedBuilder()
-      .setTitle(`Top 25 Gooey Leaderboard by number of Offspring 👩‍👧‍👧`)
+      .setTitle(`${set} Gooey Leaderboard by Offspring 👩‍👧‍👧`)
       .addFields(...list.map(({ parent: {name}, children }, i) => ({
         name: `${i + 1}) ${name}`,
-        value: `${children.length} kids`,
+        value: `${children.length} kid${children.length > 1 ? "s" : ""}`,
         inline: true
       })))
       .setFooter({text: timeStr});
@@ -116,7 +119,7 @@ module.exports = {
       subcommand
         .setName('leaderboard')
         .setDescription('Top 25 gooey leaderboard')
-        .addStringOption(option => 
+        .addStringOption(option =>
           option.setName('field')
             .setDescription('The field to filter by')
             .setRequired(true)
@@ -166,7 +169,6 @@ module.exports = {
     const rawTimestamp =  await fetchSnapshotTimestamp();
     const snapshotTimestampStr = `Gooey database last updated at ${new Date(rawTimestamp).toUTCString()}`;
 
-
       if (subcommand == 'unburied') {
         const unburiedDead = findUnburiedDead(gooeys)
         const unburiedEmbed = mkUnburiedEmbed(unburiedDead, snapshotTimestampStr)
@@ -180,23 +182,51 @@ module.exports = {
           return await interaction.reply({ embeds: [lowHealthEmbed] });
 
       } else if (subcommand == 'leaderboard') {
-        const field = interaction.options.getString('field')
+        const field = interaction.options.getString('field');
+        const generations = splitToGenerations(gooeys);
+        const gen1 = generations[1];
+        const gen2 = generations[2];
+        const gen3 = generations[3];
+        const gen4 = generations[4];
+        const gens = [ gen1, gen2, gen3, gen4 ];
+        const overallWithGens = [ gooeys, ...gens ];
 
         if (field == 'ethGobbled') {
-          const top25ETHGobbled = findAndSortByETHGobbled(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkEthLeaderboardEmbed(top25ETHGobbled, snapshotTimestampStr);
+          const ethGobbledEmbeds = overallWithGens
+            .map(goos => findAndSortByETHGobbled(goos).slice(0, 25))
+            .map((goos, i) => ({
+              goos,
+              set: i == 0 ? 'Overall' : `Gen ${i}`
+            }))
+            .filter(({goos}) => goos.length)
+            .map(({goos, set}) => mkEthLeaderboardEmbed(set, goos, snapshotTimestampStr));
 
-          return await interaction.reply({ embeds: [leaderboardEmbed] });
+          return await page(interaction, ethGobbledEmbeds);
         } else if (field == 'mitosisCredits') {
-          const top25MitosisCredits = findAndSortByMitosisCredits(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkMCLeaderboardEmbed(top25MitosisCredits, snapshotTimestampStr);
+          const mitosisCreditEmbeds = overallWithGens
+            .map(goos => findAndSortByMitosisCredits(goos).slice(0, 25))
+            .map((goos, i) => ({
+              goos,
+              set: i == 0 ? 'Overall' : `Gen ${i}`
+            }))
+            .filter(({goos}) => goos.length)
+            .map(({goos, set}) => mkMCLeaderboardEmbed(set, goos, snapshotTimestampStr));
 
-          return await interaction.reply({ embeds: [leaderboardEmbed] });
+          return await page(interaction, mitosisCreditEmbeds);
+
         } else {
-          const top25ByOffspring = findAndSortByNumberOfOffspring(gooeys).slice(0, 25);
-          const leaderboardEmbed = mkOffspringLeaderboardEmbed(top25ByOffspring, snapshotTimestampStr);
+          const mapFn = findAndSortByNumberOfOffspring(gooeys);
+          const offspringEmbeds = overallWithGens
+            .map(goos => mapFn(goos).slice(0, 25))
+            .map((goos, i) => ({
+              goos,
+              set: i == 0 ? 'Overall' : `Gen ${i}`
+            }))
+            .filter(({goos}) => goos.length)
+            .map(({goos, set}) => mkOffspringLeaderboardEmbed(set, goos, snapshotTimestampStr));
+            
+          return await page(interaction, offspringEmbeds);
 
-          return await interaction.reply({ embeds: [leaderboardEmbed] });
         }
       } else if (subcommand == 'extinct') {
         const extinctBodyTypes = findExtinctBodyTypes(gooeys);
@@ -211,19 +241,20 @@ module.exports = {
         return await interaction.reply({ embeds: [fullSetsEmbed] });
 
       } else if (subcommand == 'one-of-ones') {
-      const gen = interaction.options.getString('generation')
-      const findByGen = findOneOfOnesByGen(gooeys)
+        const gen = interaction.options.getString('generation')
+        const findByGen = findOneOfOnesByGen(gooeys)
 
         if (gen == '2') {
           const gen2OneOfOnes = findByGen(2)
-          const oneOfOneEmbed = mkOneOfOnesEmbed(2, gen2OneOfOnes, snapshotTimestampStr);
+          const oneOfOneEmbedDuex = mkOneOfOnesEmbed(2, gen2OneOfOnes, snapshotTimestampStr);
 
-          return await interaction.reply({ embeds: [oneOfOneEmbed] });
+          return await interaction.reply({ embeds: [oneOfOneEmbedDuex] });
+
         } else if (gen == '3') {
-          const gen2OneOfOnes = findByGen(3)
-          const oneOfOneEmbed = mkOneOfOnesEmbed(3, gen2OneOfOnes, snapshotTimestampStr);
+          const gen3OneOfOnes = findByGen(3)
+          const oneOfOneEmbedTrois = mkOneOfOnesEmbed(3, gen3OneOfOnes, snapshotTimestampStr);
 
-          return await interaction.reply({ embeds: [oneOfOneEmbed] });
+          return await interaction.reply({ embeds: [oneOfOneEmbedTrois] });
         }
 
       } else if (subcommand == 'singles') {

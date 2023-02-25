@@ -14,6 +14,7 @@
   "dependencies": {
     "alchemy-sdk": "^2.4.1",
     "axios": "^1.3.2",
+    "discord-pagination-advanced": "^1.1.8",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "lodash": "^4.17.21",

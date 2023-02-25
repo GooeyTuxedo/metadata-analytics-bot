@@ -2,7 +2,7 @@ import { underscore } from 'discord.js';
 import { Gooey } from '../types/gooey';
 import { oneOfOneIDs } from './lib';
 
-const splitToGenerations = (gooeys: Gooey[]): { [key: number]: Gooey[] } =>
+export const splitToGenerations = (gooeys: Gooey[]): { [key: number]: Gooey[] } =>
   gooeys.reduce((dict, goo) => {
     const { generation } = goo;
     dict[generation] = dict[generation] ? [...dict[generation], goo] : [goo];
@@ -25,14 +25,15 @@ const splitToChildren = (gooeys: Gooey[]): { [key: number]: Gooey[] } =>
     return dict;
   }, {} as { [key: number]: Gooey[] });
 
-const mapChildrenToGooey = (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => {
-  const childrenMap = splitToChildren(gooeys);
-  return gooeys.map((parent) => {
-    const children = childrenMap[parent.tokenID] || [];
-    return { parent, children }
-  })
-    .filter(({children}) => children.length > 0);
-}
+const mapChildrenToGooey =
+  (allGooeys: Gooey[], gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => {
+    const childrenMap = splitToChildren(allGooeys);
+    return gooeys.map((parent) => {
+      const children = childrenMap[parent.tokenID] || [];
+      return { parent, children }
+    })
+      .filter(({children}) => children.length > 0);
+  }
 
 export const findUnburiedDead = (gooeys: Gooey[]): number[][][] => {
   const deads = gooeys.filter(({health,isBuried}) => !isBuried && health == 0);
@@ -54,11 +55,13 @@ export const findAndSortByMitosisCredits = (gooeys: Gooey[]): Gooey[] =>
 
 export const findAndSortByETHGobbled = (gooeys: Gooey[]): Gooey[] =>
   gooeys.filter(goo => goo.ethGobbled !== null)
+    .filter(({ethGobbled}) => ethGobbled > 0)
     .sort((a, b) => b.ethGobbled - a.ethGobbled);
 
-export const findAndSortByNumberOfOffspring =
+export const findAndSortByNumberOfOffspring = (allGooeys: Gooey[]) =>
   (gooeys: Gooey[]): ({ parent: Gooey, children: Gooey[] })[] => 
-    mapChildrenToGooey(gooeys)
+    mapChildrenToGooey(allGooeys, gooeys)
+      .filter(({children}) => children.length > 0)
       .sort((a, b) => b.children.length - a.children.length)
 
 export const findPopulationDistribution =
