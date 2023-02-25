@@ -18,6 +18,7 @@ import {
   findUnburiedDead
 } from '../transformations';
 import { chunk } from 'lodash';
+import { oneOfOneIDs } from '../lib';
 
 const separatedStringBlock = (strings: string[]): string => {
   const separator = bold(' ⦚⦚ ');
@@ -26,14 +27,23 @@ const separatedStringBlock = (strings: string[]): string => {
     .join('\n');
 }
 
+const emboldenOneOfOne = (id: number): string => {
+  const oneOfOnes = oneOfOneIDs[2].concat(oneOfOneIDs[3]);
+  return oneOfOnes.includes(id) ? bold(`${id}`) : `${id}`;
+}
+
 const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${list.reduce(
       (deadCount, gen) => deadCount + gen[1].length
     , 0 as number)} unburied Gooeys with 0 health ☠️`)
-    .setDescription(list.length ? list.map(([[gen], deadGoos]) =>
-      `${bold(underscore(`Gen ${gen}:`))}\n${deadGoos.join(', ')}`
-    ).join('\n') : 'All gooeys healthy! :tada:')
+    .setDescription(list.length ? list
+      .map(([gen, goos]) => ([gen, goos.map(emboldenOneOfOne)]))
+      .map(([[gen], deadGoos]) =>
+        `${bold(underscore(`Gen ${gen}:`))}\n${deadGoos.join(', ')}`
+      ).join('\n') :
+      'All gooeys healthy! :tada:'
+    )
     .setThumbnail('https://ethgobblers.com/bury-icon.svg')
     .setFooter({text: timeStr});
 
@@ -42,9 +52,13 @@ const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
     .setTitle(`${list.reduce(
       (sadCount, gen) => sadCount + gen[1].length
     , 0 as number)} Gooeys with low health 🤒`)
-    .setDescription(list.length ? list.map(([[gen], sadGoos]) =>
+    .setDescription(list.length ? list
+      .map(([gen, goos]) => ([gen, goos.map(emboldenOneOfOne)]))
+      .map(([[gen], sadGoos]) =>
       `${bold(underscore(`Gen ${gen}:`))}\n${sadGoos.join(', ')}`
-    ).join('\n') : 'All gooeys healthy! :tada:')
+      ).join('\n') :
+      'All gooeys healthy! :tada:'
+    )
     .setFooter({text: timeStr});
 
 const mkEthLeaderboardEmbed = (set: string, list: Gooey[], timeStr: string) =>
