@@ -19,11 +19,18 @@ import {
 } from '../transformations';
 import { chunk } from 'lodash';
 
+const separatedStringBlock = (strings: string[]): string => {
+  const separator = bold(' ⦚⦚ ');
+  return chunk(strings, 3)
+    .map(([one, two, three]) => `${one}${two ? `${separator}${two}` : ''}${three ? `${separator}${three}` : ''}`)
+    .join('\n');
+}
+
 const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${list.reduce(
       (deadCount, gen) => deadCount + gen[1].length
-    , 0 as number)} unburied Gooeys with 0 health. ☠️`)
+    , 0 as number)} unburied Gooeys with 0 health ☠️`)
     .setDescription(list.length ? list.map(([[gen], deadGoos]) =>
       `${bold(underscore(`Gen ${gen}:`))}\n${deadGoos.join(', ')}`
     ).join('\n') : 'All gooeys healthy! :tada:')
@@ -34,7 +41,7 @@ const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${list.reduce(
       (sadCount, gen) => sadCount + gen[1].length
-    , 0 as number)} Gooeys with low health. 🤒`)
+    , 0 as number)} Gooeys with low health 🤒`)
     .setDescription(list.length ? list.map(([[gen], sadGoos]) =>
       `${bold(underscore(`Gen ${gen}:`))}\n${sadGoos.join(', ')}`
     ).join('\n') : 'All gooeys healthy! :tada:')
@@ -71,17 +78,17 @@ const mkOffspringLeaderboardEmbed =
       })))
       .setFooter({text: timeStr});
 
-const mkExtinctionEmbed = (list: string[], timeStr: string) =>
-    new EmbedBuilder()
-      .setTitle(`Found ${list.length} extinct gooey types. 🦖`)
-      .setDescription(list.sort().join('\n'))
-      .setFooter({text: timeStr});
+const mkExtinctionEmbed = (list: string[], timeStr: string) => 
+  new EmbedBuilder()
+    .setTitle(`Found ${list.length} extinct gooey types 🦖`)
+    .setDescription(separatedStringBlock(list.sort()))
+    .setFooter({text: timeStr});
 
-const mkSingletonsEmbed = (list: string[], timeStr: string) =>
-    new EmbedBuilder()
-      .setTitle(`Found ${list.length} singleton gooey bodies. 🩱`)
-      .setDescription(list.sort().join('\n'))
-      .setFooter({text: timeStr});
+const mkSingletonsEmbed = (list: string[], timeStr: string) => 
+  new EmbedBuilder()
+    .setTitle(`Found ${list.length} singleton gooey bodies 🩱`)
+    .setDescription(separatedStringBlock(list.sort()))
+    .setFooter({text: timeStr});
 
 const mkCensusEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
@@ -91,21 +98,15 @@ const mkCensusEmbed = (list: string[], timeStr: string) =>
 
 const mkFullSetsEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
-    .setTitle(`Found ${list.length} gen 1 body types with all 4 left living. :mirror_ball:`)
+    .setTitle(`Found ${list.length} gen 1 body types with all 4 left living :mirror_ball:`)
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
 
-const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => {
-  const separator = bold(' ⦚⦚ ');
-  return new EmbedBuilder()
-    .setTitle(`${list.length} 1/1 gooeys in Generation ${gen}. 🦄`)
-    .setDescription(
-      chunk(list.sort(), 3)
-        .map(([one, two, three]) => `${one}${two ? `${separator}${two}` : ''}${three ? `${separator}${three}` : ''}`)
-        .join('\n')
-    )
+const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => 
+  new EmbedBuilder()
+    .setTitle(`${list.length} 1/1 gooeys in Generation ${gen} 🦄`)
+    .setDescription(separatedStringBlock(list.sort()))
     .setFooter({text: timeStr});
-}
 
 module.exports = {
   data: new SlashCommandBuilder()
