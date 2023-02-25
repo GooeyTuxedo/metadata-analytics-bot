@@ -17,6 +17,7 @@ import {
   findSingletonBodyTypes,
   findUnburiedDead
 } from '../transformations';
+import { chunk } from 'lodash';
 
 const mkUnburiedEmbed = (list: number[][][], timeStr: string) =>
   new EmbedBuilder()
@@ -94,11 +95,17 @@ const mkFullSetsEmbed = (list: string[], timeStr: string) =>
     .setDescription(list.sort().join('\n'))
     .setFooter({text: timeStr});
 
-const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =>
-  new EmbedBuilder()
+const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => {
+  const separator = bold(' ⦚⦚ ');
+  return new EmbedBuilder()
     .setTitle(`${list.length} 1/1 gooeys in Generation ${gen}. 🦄`)
-    .setDescription(list.sort().join('\n'))
+    .setDescription(
+      chunk(list.sort(), 3)
+        .map(([one, two, three]) => `${one}${two ? `${separator}${two}` : ''}${three ? `${separator}${three}` : ''}`)
+        .join('\n')
+    )
     .setFooter({text: timeStr});
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
