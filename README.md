@@ -35,12 +35,12 @@ docker compose up -d
 4. Deploy discord slash commands (on first run)
 
 ```bash
-docker exec -it gooeylytics node deploy-commands.js
+docker exec -it gooeylytics node scripts/deploy-commands.js
 ```
 
 - Destroy discord slash commands (if needed) 
 ```bash
-docker exec -it gooeylytics node destroy-commands.js
+docker exec -it gooeylytics node scripts/destroy-commands.js
 ```
 
 - View container logs

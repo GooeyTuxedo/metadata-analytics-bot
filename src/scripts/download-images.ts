@@ -2,7 +2,7 @@ import fs from 'fs';
 import Axios from'axios'
 import { chunk } from 'lodash';
 
-import { oneOfOneIDs } from './lib';
+import { oneOfOneIDs } from '../lib';
 
 async function downloadImage(url: string, filepath:string) {
     const response = await Axios({
@@ -17,7 +17,7 @@ async function downloadImage(url: string, filepath:string) {
     });
 }
 
-const getGooeyMetadataListByIdList = async (idList: number[]) => {
+const getGooeyImageByIdList = async (idList: number[]) => {
     const chunkedIDs = chunk(idList, 10);
     let imgList = [];
   
@@ -31,5 +31,5 @@ const getGooeyMetadataListByIdList = async (idList: number[]) => {
   
 
 (function () {
-    getGooeyMetadataListByIdList(oneOfOneIDs[3])
+    getGooeyImageByIdList(oneOfOneIDs[3])
 })();
