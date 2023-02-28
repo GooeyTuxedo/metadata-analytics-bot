@@ -114,7 +114,9 @@ const mkCensusEmbed = (list: string[], timeStr: string) =>
 const mkFullSetsEmbed = (list: string[], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`Found ${list.length} gen 1 body types with all 4 left living :mirror_ball:`)
-    .setDescription(list.sort().join('\n'))
+    .setDescription(list.length ?
+      list.sort().join('\n') :
+      `No full genesis sets left  😭`)
     .setFooter({text: timeStr});
 
 const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => 
