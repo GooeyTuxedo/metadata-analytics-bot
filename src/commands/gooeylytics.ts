@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore, Interaction } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore, Interaction, APIEmbed, APIEmbedField } from 'discord.js';
 // @ts-ignore
 import page from 'discord-pagination-advanced';
 
@@ -15,7 +15,8 @@ import {
   findOneOfOnesByGen,
   findPopulationDistribution,
   findSingletonBodyTypes,
-  findUnburiedDead
+  findUnburiedDead,
+  findClanSizes
 } from '../transformations';
 import { chunk } from 'lodash';
 import { oneOfOneIDs } from '../lib';
@@ -122,6 +123,17 @@ const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =>
     .setDescription(separatedStringBlock(list.sort()))
     .setFooter({text: timeStr});
 
+const mkClansEmbed = (clans: ({ [key: string]: number }), timeStr: string) =>
+  new EmbedBuilder()
+    .setTitle(`Gooey clans of largest size  👩‍👩‍👧‍👧`)
+    .addFields(...Object.entries(clans).slice(0, 25)
+      .map((value, i) => ({
+        name: `${i + 1}) ${value[0]}`,
+        value: `${value[1]} members`,
+        inline: true
+      })))
+    .setFooter({text: timeStr});
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('gooey')
@@ -148,7 +160,8 @@ module.exports = {
             .addChoices(
               { name: 'ETHGobbled', value: 'ethGobbled' },
               { name: 'MitosisCredits', value: 'mitosisCredits' },
-              { name: 'Offspring', value: 'offspring' }
+              { name: 'Offspring', value: 'offspring' },
+              { name: 'Clans', value: 'clans' }
             )))
 
     .addSubcommand(subcommand =>
@@ -205,6 +218,14 @@ module.exports = {
 
       } else if (subcommand == 'leaderboard') {
         const field = interaction.options.getString('field');
+
+        if (field == 'clans') {
+          const clans = findClanSizes(gooeys);
+          const clansEmbed = mkClansEmbed(clans, snapshotTimestampStr);
+  
+          return await interaction.reply({ embeds: [clansEmbed] });
+        }
+
         const generations = splitToGenerations(gooeys);
         const gen1 = generations[1];
         const gen2 = generations[2];

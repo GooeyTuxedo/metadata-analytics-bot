@@ -139,7 +139,12 @@ export const findFullGenesisSets = (gooeys: Gooey[]): string[] => {
 //   (gooeys: Gooey[]) => (gooId: number) => {
 //     const pluckById = (id: number) => gooeys.find(({tokenID}) => id == tokenID);
 
-//     const children = mapChildrenToGooey(gooeys);
+//     const children = mapChildrenToGooey(gooeys, gooeys);
+
+//     const findAncestors = (goo: Gooey): Gooey[] => {
+//       const { parentID } = goo;
+//       return parentID ? findAncestors : goo;
+//     }
 //   }
 
 export const findOneOfOnesByGen =
@@ -148,4 +153,13 @@ export const findOneOfOnesByGen =
       .filter(({tokenID}) => oneOfOneIDs[gen].includes(tokenID))
       .map(({body}) => body as string);
     return oneOfOneTypes;
+  }
+
+export const findClanSizes =
+  (gooeys: Gooey[]): { [key: string]: number } => {
+    const bodies = splitToBodyTypes(gooeys)
+    return Object.entries(bodies)
+      .map(([body, members]) => [body, members.filter(({isBuried}) => !isBuried).length])
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .reduce((acc, [body, count]) => ({ ...acc, [body]: count }), {})
   }
