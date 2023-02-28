@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder, ChatInputCommandInteraction, bold, underscore, Interaction, APIEmbed, APIEmbedField } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 // @ts-ignore
 import page from 'discord-pagination-advanced';
 
