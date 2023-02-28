@@ -13,16 +13,6 @@ const rest = new REST({ version: '10' }).setToken(token);
 // and deploy your commands!
 (async () => {
 	try {
-		console.log(`Started destroying application (/) commands.`);
-
-		// The put method is used to fully refresh all commands in the guild with the current set
-		await rest.put(
-			Routes.applicationCommands(clientId),
-			{ body: [] },
-		) as ApplicationCommand[];
-
-		console.log(`Successfully destroyed application (/) commands.`);
-
 		if (guildId) {
 			console.log(`Started destroying guild (/) commands.`);
 
@@ -32,6 +22,16 @@ const rest = new REST({ version: '10' }).setToken(token);
 			) as ApplicationCommand[];
 
 			console.log(`Successfully destroyed guild (/) commands.`);
+		} else {
+			console.log(`Started destroying global application (/) commands.`);
+
+			// The put method is used to fully refresh all commands in the guild with the current set
+			await rest.put(
+				Routes.applicationCommands(clientId),
+				{ body: [] },
+			) as ApplicationCommand[];
+
+			console.log(`Successfully destroyed global application (/) commands.`);
 		}
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!

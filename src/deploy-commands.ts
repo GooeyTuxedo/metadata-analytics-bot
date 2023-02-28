@@ -7,6 +7,8 @@ import { ApplicationCommand, REST, Routes } from 'discord.js';
 const clientId = process.env.DISCORD_CLIENT || "";
 const token = process.env.DISCORD_TOKEN || "";
 
+const [ guildId ] = process.argv.slice(2);
+
 const commands: ApplicationCommand[] = [];
 // Grab all the command files from the commands directory you created earlier
 const commandsPath = path.join(__dirname, 'commands');
@@ -24,15 +26,28 @@ const rest = new REST({ version: '10' }).setToken(token);
 // and deploy your commands!
 (async () => {
 	try {
-		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+		if (guildId) {
+			console.log(`Started refreshing ${commands.length} guild application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
-		const data = await rest.put(
-			Routes.applicationCommands(clientId),
-			{ body: commands },
-		) as ApplicationCommand[];
+			// The put method is used to fully refresh all commands in the guild with the current set
+			const data = await rest.put(
+				Routes.applicationGuildCommands(clientId, guildId),
+				{ body: commands },
+			) as ApplicationCommand[];
 
-		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+			console.log(`Successfully reloaded ${data.length} guild application (/) commands.`);
+
+		} else {
+			console.log(`Started refreshing ${commands.length} global application (/) commands.`);
+
+			// The put method is used to fully refresh all commands in the guild with the current set
+			const data = await rest.put(
+				Routes.applicationCommands(clientId),
+				{ body: commands },
+			) as ApplicationCommand[];
+
+			console.log(`Successfully reloaded ${data.length} global application (/) commands.`);
+		}
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!
 		console.error(error);
