@@ -1,4 +1,4 @@
-import { underscore } from 'discord.js';
+import { strikethrough, underscore } from 'discord.js';
 import { Gooey } from '../types/gooey';
 import { oneOfOneIDs } from './lib';
 
@@ -106,7 +106,9 @@ export const findSingletonBodyTypes = (gooeys: Gooey[]): string[] => {
 }
 
 export const findExtinctBodyTypes = (gooeys: Gooey[]): string[] => {
-  const bodyTypes = splitToBodyTypes(gooeys);
+  const oneOfOnes = oneOfOneIDs[2].concat(oneOfOneIDs[3])
+  const gooeysNoOneOfOnes = gooeys.filter(({tokenID}) => !oneOfOnes.includes(tokenID))
+  const bodyTypes = splitToBodyTypes(gooeysNoOneOfOnes);
   const children = splitToChildren(gooeys);
 
   const hasLivingChildren = (tokenID: number): boolean =>
@@ -151,7 +153,8 @@ export const findOneOfOnesByGen =
   (gooeys: Gooey[]) => (gen: number) => {
     const oneOfOneTypes = gooeys
       .filter(({tokenID}) => oneOfOneIDs[gen].includes(tokenID))
-      .map(({body}) => body as string);
+      .sort((a, b) => (a.body as string) > (b.body as string) ? 1 : -1)
+      .map(({body, isBuried}) => isBuried ? strikethrough(body as string) : body as string);
     return oneOfOneTypes;
   }
 

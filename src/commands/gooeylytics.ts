@@ -122,7 +122,7 @@ const mkFullSetsEmbed = (list: string[], timeStr: string) =>
 const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => 
   new EmbedBuilder()
     .setTitle(`${list.length} 1/1 gooeys in Generation ${gen} 🦄`)
-    .setDescription(separatedStringBlock(list.sort()))
+    .setDescription(separatedStringBlock(list))
     .setFooter({text: timeStr});
 
 const mkClansEmbed = (clans: ({ [key: string]: number }), timeStr: string) =>
