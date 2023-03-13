@@ -50,7 +50,9 @@ export const findLowHealth = (gooeys: Gooey[]): number[][][] => {
 }
 
 export const findAsleeps = (gooeys: Gooey[]): number[][][] => {
-  const asleeps = gooeys.filter(({isAwake}) => !isAwake );
+  const asleeps = gooeys
+    .filter(({age}) => age != 'deceased')
+    .filter(({isAwake}) => !isAwake);
   const asleepsByGen = splitToGenerations(asleeps)
   return Object.entries(asleepsByGen)
     .map(([gen, goos]) => ([[parseInt(gen)], goos.map(goo => goo.tokenID)]))
