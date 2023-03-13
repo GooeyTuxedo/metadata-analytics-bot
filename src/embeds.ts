@@ -46,6 +46,20 @@ export const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
     )
     .setFooter({text: timeStr});
 
+    export const mkAsleepsEmbed = (list: number[][][], timeStr: string) =>
+    new EmbedBuilder()
+      .setTitle(`${list.reduce(
+        (deadCount, gen) => deadCount + gen[1].length
+      , 0 as number)} Gooeys are sleeping :shushing_face:`)
+      .setDescription(list.length ? list
+        .map(([gen, goos]) => ([gen, goos.map(emboldenOneOfOne)]))
+        .map(([[gen], asleepGoos]) =>
+          `${bold(underscore(`Gen ${gen}:`))}\n${asleepGoos.join(', ')}`
+        ).join('\n') :
+        'All gooeys awake! :sunny:'
+      )
+      .setFooter({text: timeStr});  
+
 export const mkEthLeaderboardEmbed = (set: string, list: Gooey[], timeStr: string) =>
   new EmbedBuilder()
     .setTitle(`${set} Gooey Leaderboard by ETH Gobbled 🎨`)

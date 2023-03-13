@@ -11,6 +11,7 @@ import {
   findExtinctBodyTypes,
   findFullGenesisSets,
   findLowHealth,
+  findAsleeps,
   findOneOfOnesByGen,
   findPopulationDistribution,
   findSingletonBodyTypes,
@@ -20,6 +21,7 @@ import {
 import {
   mkUnburiedEmbed,
   mkLowHealthEmbed,
+  mkAsleepsEmbed,
   mkEthLeaderboardEmbed,
   mkMCLeaderboardEmbed,
   mkOffspringLeaderboardEmbed,
@@ -45,6 +47,11 @@ module.exports = {
       subcommand
         .setName('low-health')
         .setDescription('List all Gooeys under 8 health'))
+
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('asleeps')
+        .setDescription('List all sleeping Gooeys'))
     
     .addSubcommand(subcommand =>
       subcommand
@@ -112,6 +119,12 @@ module.exports = {
           const lowHealthEmbed = mkLowHealthEmbed(sadGooeys, snapshotTimestampStr)
   
           return await interaction.reply({ embeds: [lowHealthEmbed] });
+
+      } else if (subcommand == 'asleeps') {
+        const asleepGooeys = findAsleeps(gooeys)
+        const asleepsEmbed = mkAsleepsEmbed(asleepGooeys, snapshotTimestampStr)
+
+        return await interaction.reply({ embeds: [asleepsEmbed] });
 
       } else if (subcommand == 'leaderboard') {
         const field = interaction.options.getString('field');

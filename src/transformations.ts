@@ -49,6 +49,13 @@ export const findLowHealth = (gooeys: Gooey[]): number[][][] => {
     .map(([gen, goos]) => ([[parseInt(gen)], goos.map(goo => goo.tokenID)]))
 }
 
+export const findAsleeps = (gooeys: Gooey[]): number[][][] => {
+  const asleeps = gooeys.filter(({isAwake}) => !isAwake );
+  const asleepsByGen = splitToGenerations(asleeps)
+  return Object.entries(asleepsByGen)
+    .map(([gen, goos]) => ([[parseInt(gen)], goos.map(goo => goo.tokenID)]))
+}
+
 export const findAndSortByMitosisCredits = (gooeys: Gooey[]): Gooey[] =>
   gooeys.filter(({mitosisCredits}) => mitosisCredits > 0)
     .sort((a, b) => b.mitosisCredits - a.mitosisCredits);
