@@ -11,12 +11,12 @@ const [ guildId ] = process.argv.slice(2);
 
 const commands: ApplicationCommand[] = [];
 // Grab all the command files from the commands directory you created earlier
-const commandsPath = path.join(__dirname, 'commands');
+const commandsPath = path.join(__dirname, '../commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
+	const command = require(`../commands/${file}`);
 	commands.push(command.data.toJSON());
 }
 
