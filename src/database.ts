@@ -94,7 +94,7 @@ const getGooeyById = async (tokenId: number): Promise<Gooey | null> => {
 }
 
 const getGooeyMetadataListByIdList = async (idList: number[]): Promise<(Gooey|null)[]> => {
-  const chunkedIDs = chunk(idList, 100);
+  const chunkedIDs = chunk(idList, 10);
   let gooList = [];
 
   for (const c of chunkedIDs) {
