@@ -112,18 +112,21 @@ module.exports = {
         const unburiedDead = findUnburiedDead(gooeys)
         const unburiedEmbed = mkUnburiedEmbed(unburiedDead, snapshotTimestampStr)
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [unburiedEmbed] });
 
       } else if (subcommand == 'low-health') {
           const sadGooeys = findLowHealth(gooeys)
           const lowHealthEmbed = mkLowHealthEmbed(sadGooeys, snapshotTimestampStr)
-  
+
+          console.log(`Replying to command /gooey ${subcommand}`);
           return await interaction.reply({ embeds: [lowHealthEmbed] });
 
       } else if (subcommand == 'asleeps') {
         const asleepGooeys = findAsleeps(gooeys)
         const asleepsEmbed = mkAsleepsEmbed(asleepGooeys, snapshotTimestampStr)
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [asleepsEmbed] });
 
       } else if (subcommand == 'leaderboard') {
@@ -133,6 +136,7 @@ module.exports = {
           const clans = findClanSizes(gooeys);
           const clansEmbed = mkClansEmbed(clans, snapshotTimestampStr);
   
+          console.log(`Replying to command /gooey ${subcommand} ${field}`);
           return await interaction.reply({ embeds: [clansEmbed] });
         }
 
@@ -154,6 +158,7 @@ module.exports = {
             .filter(({goos}) => goos.length)
             .map(({goos, set}) => mkEthLeaderboardEmbed(set, goos, snapshotTimestampStr));
 
+          console.log(`Replying to command /gooey ${subcommand} ${field}`);
           return await page(interaction, ethGobbledEmbeds);
         } else if (field == 'mitosisCredits') {
           const mitosisCreditEmbeds = overallWithGens
@@ -165,6 +170,7 @@ module.exports = {
             .filter(({goos}) => goos.length)
             .map(({goos, set}) => mkMCLeaderboardEmbed(set, goos, snapshotTimestampStr));
 
+          console.log(`Replying to command /gooey ${subcommand} ${field}`);
           return await page(interaction, mitosisCreditEmbeds);
 
         } else {
@@ -178,6 +184,7 @@ module.exports = {
             .filter(({goos}) => goos.length)
             .map(({goos, set}) => mkOffspringLeaderboardEmbed(set, goos, snapshotTimestampStr));
             
+          console.log(`Replying to command /gooey ${subcommand} ${field}`);
           return await page(interaction, offspringEmbeds);
 
         }
@@ -185,12 +192,14 @@ module.exports = {
         const extinctBodyTypes = findExtinctBodyTypes(gooeys);
         const extinctionEmbed = mkExtinctionEmbed(extinctBodyTypes, snapshotTimestampStr);
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [extinctionEmbed] });
 
       } else if (subcommand == 'full-sets') {
         const fullSets = findFullGenesisSets(gooeys);
         const fullSetsEmbed = mkFullSetsEmbed(fullSets, snapshotTimestampStr);
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [fullSetsEmbed] });
 
       } else if (subcommand == 'one-of-ones') {
@@ -201,12 +210,14 @@ module.exports = {
           const gen2OneOfOnes = findByGen(2)
           const oneOfOneEmbedDuex = mkOneOfOnesEmbed(2, gen2OneOfOnes, snapshotTimestampStr);
 
+          console.log(`Replying to command /gooey ${subcommand} ${gen}`);
           return await interaction.reply({ embeds: [oneOfOneEmbedDuex] });
 
         } else if (gen == '3') {
           const gen3OneOfOnes = findByGen(3)
           const oneOfOneEmbedTrois = mkOneOfOnesEmbed(3, gen3OneOfOnes, snapshotTimestampStr);
 
+          console.log(`Replying to command /gooey ${subcommand} ${gen}`);
           return await interaction.reply({ embeds: [oneOfOneEmbedTrois] });
         }
 
@@ -214,11 +225,14 @@ module.exports = {
         const singletonBodyTypes = findSingletonBodyTypes(gooeys);
         const singletonsEmbed = mkSingletonsEmbed(singletonBodyTypes, snapshotTimestampStr);
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [singletonsEmbed] });
+
       } else if (subcommand == 'stats') {
         const populationStrings = findPopulationDistribution(gooeys);
         const censusEmbed = mkCensusEmbed(populationStrings, snapshotTimestampStr);
 
+        console.log(`Replying to command /gooey ${subcommand}`);
         return await interaction.reply({ embeds: [censusEmbed] });
       }
   }
