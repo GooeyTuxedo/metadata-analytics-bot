@@ -4,6 +4,8 @@ services:
     build: .
     container_name: gooeylytics
     working_dir: /usr/app
+    dns:
+      - 1.1.1.1
     environment:
       - NODE_ENV=production
     restart: unless-stopped

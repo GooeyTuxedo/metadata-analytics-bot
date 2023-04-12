@@ -1,5 +1,5 @@
 import { db } from "./database";
-import { Gooey } from "../types/gooey";
+import { Gooey, FlatGooey } from "../types/gooey";
 
 
 export const fetchTokenCollection = (): Promise<Gooey[]> => {
@@ -7,7 +7,7 @@ export const fetchTokenCollection = (): Promise<Gooey[]> => {
     return db.all(
       `SELECT tokenID, name, description, image, generation, health, disposition, age, isAwake, isBuried, mitosisCredits, parentID, body, ethGobbled
       FROM tokens`,
-      (err, rows) => {
+      (err, rows: FlatGooey[]) => {
         if (err) {
           reject(err);
         } else {
@@ -27,7 +27,7 @@ export const fetchTokenCollection = (): Promise<Gooey[]> => {
 
 export const fetchSnapshotTimestamp = (): Promise<number> => {
   return new Promise((resolve, reject) => {
-    return db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row) => {
+    return db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row: FlatGooey) => {
       if (err) {
         reject(err)
       }
