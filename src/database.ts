@@ -4,7 +4,6 @@ import { chunk } from 'lodash';
 import { Database } from 'sqlite3';
 import { Alchemy, Network } from 'alchemy-sdk';
 
-import { buggedUndead } from './lib';
 import { replaceAtIdx } from './utility';
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
 
@@ -125,23 +124,6 @@ const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | 
 const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
   maybeGooeyList.filter(goo => goo !== null) as Gooey[];
 
-const squashUndeadBugs = (gooeys: Gooey[]): Gooey[] => {
-  console.log(`squashing bugs...`);
-  return gooeys.map((goo) => {
-    if (buggedUndead.includes(goo.tokenID) && goo.age == "deceased") {
-      console.log(`gooey #${goo.tokenID} NOT SQUASHED: appears pre squashed. DEV NOTE -> PLEASE UPDATE`);
-    }
-    return buggedUndead.includes(goo.tokenID) ?
-      ({
-        ...goo,
-        age: "deceased",
-        isAwake: false,
-        isBuried: true
-      }) :
-      goo
-  });
-}
-
 const updateGooeyCollection = (gooeys: Gooey[]) => {
   db.serialize(() => {
     db.run(
@@ -219,7 +201,6 @@ export function doUpdate() {
   .then(getGooeyCollectionBySupply)
   .then(retryFailuresInList)
   .then(filterFailures)
-  .then(squashUndeadBugs)
   .then(updateGooeyCollection)
   .then(() => console.log(`Updated gooey database at ${new Date().toUTCString()}`))
   .catch(() => console.log(`db update failed!`));
