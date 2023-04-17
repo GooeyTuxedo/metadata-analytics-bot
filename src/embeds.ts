@@ -46,7 +46,8 @@ export const mkLowHealthEmbed = (list: number[][][], timeStr: string) =>
     )
     .setFooter({text: timeStr});
 
-    export const mkAsleepsEmbed = (list: number[][][], timeStr: string) =>
+export const mkAsleepsEmbed =
+  (list: number[][][], timeStr: string) =>
     new EmbedBuilder()
       .setTitle(`${list.reduce(
         (deadCount, gen) => deadCount + gen[1].length
@@ -117,11 +118,20 @@ export const mkFullSetsEmbed = (list: string[], timeStr: string) =>
       `No full genesis sets left  😭`)
     .setFooter({text: timeStr});
 
-export const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => 
-  new EmbedBuilder()
+export const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) => {
+  const [live, ded] = list.reduce<number[]>(
+    ([alive, dead], str) => 
+      str.match(/~~(.*?)~~/) ? [alive, dead + 1] : [alive + 1, dead]
+    , [0, 0]
+  )
+  const percent = live / list.length;
+  const livingCountStr = `${underscore('Body Count:')} ${live} left alive, ${ded} dead: ${percent}%\n`;
+
+  return new EmbedBuilder()
     .setTitle(`${list.length} 1/1 gooeys in Generation ${gen} 🦄`)
-    .setDescription(separatedStringBlock(list))
+    .setDescription(livingCountStr + separatedStringBlock(list))
     .setFooter({text: timeStr});
+}
 
 export const mkClansEmbed = (clans: ({ [key: string]: number }), timeStr: string) =>
   new EmbedBuilder()
