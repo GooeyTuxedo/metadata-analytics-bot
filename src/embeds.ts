@@ -124,7 +124,7 @@ export const mkOneOfOnesEmbed = (gen: number, list: string[], timeStr: string) =
       str.match(/~~(.*?)~~/) ? [alive, dead + 1] : [alive + 1, dead]
     , [0, 0]
   )
-  const percent = live / list.length;
+  const percent = live / list.length * 100;
   const livingCountStr = `${underscore('Body Count:')} ${live} left alive, ${ded} dead: ${percent}%\n`;
 
   return new EmbedBuilder()
