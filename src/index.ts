@@ -6,6 +6,7 @@ dotenv.config();
 import { GatewayIntentBits } from 'discord.js';
 import { DiscordClient } from './discordClient';
 import { doUpdate, doUpdateLoop } from './database';
+import redisClient from './redis';
 
 const token = process.env.DISCORD_TOKEN
 
@@ -40,10 +41,13 @@ for (const file of eventFiles) {
 
 console.log('Booting up discord bot')
 
-// Log in to Discord with your client's token after db has been initalized
 doUpdate()
   .then(async () => {
     await client.login(token)
       .catch(err => console.log(`Error logging into discord! ${err}`))
   })
   .then(() => doUpdateLoop())
+  .finally(async () => {
+    // Disconnect from redis
+    await redisClient.disconnect();
+  })

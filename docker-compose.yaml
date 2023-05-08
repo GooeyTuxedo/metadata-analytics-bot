@@ -1,5 +1,14 @@
 version: '3'
 services:
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    command: redis-server --save 900 1 --appendonly yes
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_APPENDONLY=yes
+      - REDIS_SAVE=900 1
   gooeylytics:
     build: .
     container_name: gooeylytics
@@ -8,4 +17,9 @@ services:
       - 1.1.1.1
     environment:
       - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      # Passes credentials through from .env file at root of project
+      - ALCHEMY_API_KEY
+      - DISCORD_TOKEN
+      - DISCORD_CLIENT
     restart: unless-stopped

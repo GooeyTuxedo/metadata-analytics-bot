@@ -1,43 +1,37 @@
-import { db } from "./database";
-import { Gooey, FlatGooey } from "../types/gooey";
+import { Alchemy, Network } from 'alchemy-sdk';
+import { sortBy } from 'lodash';
+
+import redisClient from "./redis";
+import { Gooey } from "../types/gooey";
 
 
-export const fetchTokenCollection = (): Promise<Gooey[]> => {
-  return new Promise((resolve, reject) => {
-    return db.all(
-      `SELECT tokenID, name, description, image, generation, health, disposition, age, isAwake, isBuried, mitosisCredits, parentID, body, ethGobbled
-      FROM tokens`,
-      (err, rows: FlatGooey[]) => {
-        if (err) {
-          reject(err);
-        } else {
-          const gooeys = rows.map(goo => ({
-            ...goo,
-            isAwake: goo.isAwake == 1 ? true : false,
-            isBuried: goo.isBuried == 1 ? true : false,
-            ethGobbled: goo.ethGobbled ? goo.ethGobbled : 0
-          }))
-          resolve(gooeys as Gooey[]);
-        }
-      }
-    );
-  });
+export const fetchTokenCollection = async (): Promise<Gooey[]> => {
+  const gooeys = (await redisClient.hVals('gooeys'))
+    .map((goo) => JSON.parse(goo) as Gooey);
+
+  console.log(`fetched ${gooeys.length} gooeys`)
+  return sortBy(gooeys, 'tokenID');
 }
 
+export const getTokenIndex = async (): Promise<number> => {
+  const settings = {
+    apiKey: process.env.ALCHEMY_API_KEY,
+    network: Network.ETH_MAINNET
+  }
+  const alchemy = new Alchemy(settings);
 
-export const fetchSnapshotTimestamp = (): Promise<number> => {
-  return new Promise((resolve, reject) => {
-    return db.get('SELECT MAX(updated_at) as last_update FROM tokens', [], (err, row: FlatGooey) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(row.last_update);
-    });
-  });
+  const { totalSupply = '2000' } = await alchemy.nft.getContractMetadata('0x0a8d311b99ddaa9ebb45fd606eb0a1533004f26b')
+  if (totalSupply == '2000') console.log('FETCHING SUPPLY FAILED')
+  console.log(`Collection total supply: ${totalSupply} tokens`)
+  return parseInt(totalSupply);
 }
 
-export const replaceAtIdx = <T extends unknown>(list: T[], i: number, item: T) => [
+export const replaceAtIndex = <T extends unknown>(list: T[], i: number, item: T) => [
   ...list.slice(0, i),
   item,
   ...list.slice(i + 1)
 ]
+
+export function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 // @ts-ignore
 import page from 'discord-pagination-advanced';
 
-import { fetchTokenCollection, fetchSnapshotTimestamp } from '../utility';
+import { fetchTokenCollection } from '../utility';
 import {
   splitToGenerations,
   findAndSortByETHGobbled,
@@ -16,7 +16,8 @@ import {
   findPopulationDistribution,
   findSingletonBodyTypes,
   findUnburiedDead,
-  findClanSizes
+  findClanSizes,
+  fetchSnapshotTimestamp
 } from '../transformations';
 import {
   mkUnburiedEmbed,
@@ -104,9 +105,9 @@ module.exports = {
 
   async execute(interaction: ChatInputCommandInteraction) {
     const subcommand = interaction.options.getSubcommand();
-    const gooeys = await fetchTokenCollection()
-    const rawTimestamp =  await fetchSnapshotTimestamp();
-    const snapshotTimestampStr = `Gooey database last updated at ${new Date(rawTimestamp).toUTCString()}`;
+    const gooeys = await fetchTokenCollection();
+    const timestamp = fetchSnapshotTimestamp(gooeys);
+    const snapshotTimestampStr = `Gooey database last updated at ${timestamp.toUTCString()}`;
 
       if (subcommand == 'unburied') {
         const unburiedDead = findUnburiedDead(gooeys)

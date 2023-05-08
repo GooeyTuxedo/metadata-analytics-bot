@@ -1,4 +1,5 @@
 import { strikethrough, underscore } from 'discord.js';
+import { last, sortBy } from 'lodash';
 import { Gooey } from '../types/gooey';
 import { oneOfOneIDs } from './lib';
 
@@ -175,3 +176,10 @@ export const findClanSizes =
       .sort((a, b) => (b[1] as number) - (a[1] as number))
       .reduce((acc, [body, count]) => ({ ...acc, [body]: count }), {})
   }
+
+export const fetchSnapshotTimestamp = (gooeys: Gooey[]): Date => {
+  const recentGooey = last(sortBy(gooeys, 'last_update'));
+  if (!recentGooey) throw new Error('Failed to fetch timestamp!');
+  const { last_update } = recentGooey;
+  return new Date(last_update);
+}

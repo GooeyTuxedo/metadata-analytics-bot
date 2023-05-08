@@ -28,5 +28,16 @@ export interface Gooey {
   mitosisCredits: number;
   parentID: (number | null);
   body: (string | null);
+  background: (string | null);
+  sidekick: (string | null);
+  accessory: (string | null);
+  food: (string | null);
+  wings: (string | null);
+  weather: (string | null);
+  cushion: (string | null);
+  // inFlight: (string | null);
+  freeSlot: (string | null);
   ethGobbled: number;
+
+  last_update: number;
 }
