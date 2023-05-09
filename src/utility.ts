@@ -1,5 +1,5 @@
-import { Alchemy, Network } from 'alchemy-sdk';
-import { sortBy } from 'lodash';
+import { Alchemy, Network, Nft } from 'alchemy-sdk';
+import { each, forEach, sortBy } from 'lodash';
 
 import redisClient from "./redis";
 import { Gooey } from "../types/gooey";
@@ -34,4 +34,20 @@ export const replaceAtIndex = <T extends unknown>(list: T[], i: number, item: T)
 
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export const getTokensInDeadAddress = async (): Promise<number[]> => {
+  const settings = {
+    apiKey: process.env.ALCHEMY_API_KEY,
+    network: Network.ETH_MAINNET
+  }
+  const alchemy = new Alchemy(settings);
+
+  const tokens = alchemy.nft.getNftsForOwnerIterator('0x000000000000000000000000000000000000dead', { contractAddresses: ['0x0a8d311b99ddaa9ebb45fd606eb0a1533004f26b'] });
+  const tokenIds: number[] = [];
+  for await (const token of tokens) {
+    const { tokenId } = token;
+    tokenIds.push(parseInt(tokenId));
+  }
+  return tokenIds;
 }

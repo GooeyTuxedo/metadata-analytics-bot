@@ -2,7 +2,7 @@ import 'dotenv/config.js'
 import axios from 'axios';
 import { chunk } from 'lodash';
 
-import { getTokenIndex, replaceAtIndex, sleep } from './utility';
+import { getTokensInDeadAddress, getTokenIndex, replaceAtIndex, sleep } from './utility';
 import { Gooey, FlatGooey, RawGooey } from "../types/gooey";
 import redisClient from './redis';
 
@@ -119,6 +119,17 @@ const retryFailuresInList = async (gooList: (Gooey | null)[]): Promise<(Gooey | 
 const filterFailures = (maybeGooeyList: (Gooey | null)[]): Gooey[] =>
   maybeGooeyList.filter(goo => goo !== null) as Gooey[];
 
+const fixupMetadataForUndeadGooeys = async (gooeys: Gooey[]) => {
+  console.log('fixing undead metadata... 🧟');
+  const deadIds = await getTokensInDeadAddress();
+  return gooeys.map(goo => deadIds.includes(goo.tokenID) ? {
+    ...goo,
+    age: 'deceased',
+    isAwake: false,
+    isBuried: true
+  } : goo);
+}
+
 const updateGooeyCollection = async (gooeys: Gooey[]) => {
   if (!redisClient.isOpen) await redisClient.connect()
     .catch((reason) => console.log("Error connecting to redis!\n", reason));
@@ -133,6 +144,7 @@ export function doUpdate() {
   .then(getGooeyCollectionBySupply)
   .then(retryFailuresInList)
   .then(filterFailures)
+  .then(fixupMetadataForUndeadGooeys)
   .then(updateGooeyCollection)
   .then(() => console.log(`Updated gooey database at ${new Date().toUTCString()}`))
   .catch(() => console.log(`db update failed!`));
