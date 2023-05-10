@@ -7,10 +7,19 @@ import { GatewayIntentBits } from 'discord.js';
 import { DiscordClient } from './discordClient';
 import { doUpdate, doUpdateLoop } from './database';
 import redisClient from './redis';
+import { getLivingTokenSupply, sleep } from './utility';
 
 const token = process.env.DISCORD_TOKEN
 
 const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+
+const updateStatus = async () => {
+  if (client.user) client.user.setActivity(`living tokens: ${await getLivingTokenSupply()}`)
+}
+const updateStatusLoop = async () => {
+  await sleep(3600000);
+  updateStatus().then(() => updateStatusLoop());
+}
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -44,9 +53,13 @@ console.log('Booting up discord bot')
 doUpdate()
   .then(async () => {
     await client.login(token)
+      .then(() => updateStatus())
       .catch(err => console.log(`Error logging into discord! ${err}`))
   })
-  .then(() => doUpdateLoop())
+  .then(() => {
+    updateStatusLoop();
+    doUpdateLoop();
+  })
   .finally(async () => {
     // Disconnect from redis
     await redisClient.disconnect();

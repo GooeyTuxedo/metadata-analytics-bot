@@ -1,5 +1,5 @@
-import { Alchemy, Network, Nft } from 'alchemy-sdk';
-import { each, forEach, sortBy } from 'lodash';
+import { Alchemy, Network } from 'alchemy-sdk';
+import { sortBy } from 'lodash';
 
 import redisClient from "./redis";
 import { Gooey } from "../types/gooey";
@@ -11,6 +11,11 @@ export const fetchTokenCollection = async (): Promise<Gooey[]> => {
 
   console.log(`fetched ${gooeys.length} gooeys`)
   return sortBy(gooeys, 'tokenID');
+}
+
+export const getLivingTokenSupply = async () => {
+  const gooeys = await fetchTokenCollection();
+  return gooeys.filter(({isBuried}) => !isBuried).length;
 }
 
 export const getTokenIndex = async (): Promise<number> => {
