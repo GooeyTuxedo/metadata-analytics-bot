@@ -1,9 +1,8 @@
+import 'dotenv/config.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { ActivityType, GatewayIntentBits } from 'discord.js';
 
-import { GatewayIntentBits } from 'discord.js';
 import { DiscordClient } from './discordClient';
 import { doUpdate, doUpdateLoop } from './database';
 import redisClient from './redis';
@@ -14,7 +13,10 @@ const token = process.env.DISCORD_TOKEN
 const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
 const updateStatus = async () => {
-  if (client.user) client.user.setActivity(`living tokens: ${await getLivingTokenSupply()}`)
+  if (client.user) client.user.setActivity(
+    `living tokens: ${await getLivingTokenSupply()}`,
+    { type: ActivityType.Watching }
+  )
 }
 const updateStatusLoop = async () => {
   await sleep(3600000);
