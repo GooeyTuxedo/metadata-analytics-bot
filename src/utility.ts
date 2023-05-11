@@ -6,6 +6,7 @@ import { Gooey } from "../types/gooey";
 
 
 export const fetchTokenCollection = async (): Promise<Gooey[]> => {
+  if (!redisClient.isOpen) await redisClient.connect();
   const gooeys = (await redisClient.hVals('gooeys'))
     .map((goo) => JSON.parse(goo) as Gooey);
 
@@ -13,10 +14,9 @@ export const fetchTokenCollection = async (): Promise<Gooey[]> => {
   return sortBy(gooeys, 'tokenID');
 }
 
-export const getLivingTokenSupply = async () => {
-  const gooeys = await fetchTokenCollection();
-  return gooeys.filter(({isBuried}) => !isBuried).length;
-}
+export const getLivingTokenSupply = async () =>
+  fetchTokenCollection()
+    .then(gooeys => gooeys.filter(({isBuried}) => !isBuried).length);
 
 export const getTokenIndex = async (): Promise<number> => {
   const settings = {

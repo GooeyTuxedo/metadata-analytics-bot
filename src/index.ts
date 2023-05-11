@@ -19,7 +19,7 @@ const updateStatus = async () => {
   )
 }
 const updateStatusLoop = async () => {
-  await sleep(3600000);
+  await sleep(600000);
   updateStatus().then(() => updateStatusLoop());
 }
 
