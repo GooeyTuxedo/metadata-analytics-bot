@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "deploy-cmds": "node dist/scripts/deploy-commands.js",
-    "destroy-cmds": "node dist/scripts/destroy-commands.js"
+    "destroy-cmds": "node dist/scripts/destroy-commands.js",
+    "export": "node dist/scripts/export-metadata-db.js"
   },
   "dependencies": {
     "alchemy-sdk": "^2.4.1",

@@ -23,3 +23,23 @@ services:
       - DISCORD_TOKEN
       - DISCORD_CLIENT
     restart: unless-stopped
+
+  metadata-exporter:
+    build:
+      context: .
+      target: run-export
+    container_name: metadata-exporter
+    profiles:
+      - export
+    volumes:
+      - ./data:/usr/data
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://bot-redis:6379
+    networks:
+      - stateful-bot-stack_default
+    
+
+networks:
+  stateful-bot-stack_default:
+    external: true
