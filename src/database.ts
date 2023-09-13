@@ -151,6 +151,6 @@ export function doUpdate() {
 }
 
 export async function doUpdateLoop(): Promise<void> {
-  await sleep(900000);
+  await sleep(86400000);
   doUpdate().then(() => doUpdateLoop()) // run another update after 15 minutes
 }
