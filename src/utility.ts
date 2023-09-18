@@ -10,7 +10,6 @@ export const fetchTokenCollection = async (): Promise<Gooey[]> => {
   const gooeys = (await redisClient.hVals('gooeys'))
     .map((goo) => JSON.parse(goo) as Gooey);
 
-  console.log(`fetched ${gooeys.length} gooeys`)
   return sortBy(gooeys, 'tokenID');
 }
 
